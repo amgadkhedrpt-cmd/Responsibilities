@@ -19,7 +19,6 @@
         select { width: 100%; padding: 12px; background-color: #0f172a; border: 1px solid #475569; border-radius: 12px; color: #f1f5f9; font-size: 14px; outline: none; cursor: pointer; }
         select:focus { border-color: #38bdf8; }
         
-        /* تصميم قسم تسجيل الغياب */
         .absence-section { background-color: #1e293b; padding: 16px; border-radius: 16px; border: 1px solid #334155; display: flex; flex-wrap: wrap; gap: 24px; align-items: center; }
         .absence-title { font-weight: bold; color: #f43f5e; font-size: 14px; }
         .checkbox-group { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
@@ -65,7 +64,7 @@
         
         <header>
             <h1>نظام المتابعة والتفتيش التفاعلي - BodyFix</h1>
-            <p>لوحة التحكم الشاملة لفرعي (الدقي والهرم) مع النقل الذكي المبني على عدد الغيابات الإجمالي للموظفين</p>
+            <p>لوحة التحكم الشاملة لفرعي (الدقي والهرم) مع الحفاظ التام على ترتيب وصيغة المهام والدمج الذكي للمكرر</p>
         </header>
 
         <section class="filters-section">
@@ -81,17 +80,17 @@
                 <label>👤 عرض الموظف المسؤول (تصفية لعمودك الوظيفي):</label>
                 <select id="roleFilter" onchange="renderDashboard()">
                     <option value="ALL">📊 شاشة الإدارة والمشرف الكاملة (كل الموظفين)</option>
-                    <option value="F">📋 سكرتارية الشيفت الصباحي (الفرعين)</option>
-                    <option value="H">📋 سكرتارية عيادة واحد (1) - تشمل تحويل الغياب</option>
-                    <option value="J">📋 سكرتارية عيادة اثنين (2)</option>
-                    <option value="L">📋 مشرف السكرتارية (الفرعين) - تشمل طوارئ الـ 2 غياب</option>
-                    <option value="DOKKI_STAFF">📋 سكرتارية الدقي (الشفت الكامل للفرع)</option>
+                    <option value="F">📋 سكرتارية الشيفت الصباحي</option>
+                    <option value="H">📋 سكرتارية عيادة واحد</option>
+                    <option value="J">📋 سكرتارية عيادة اثنين</option>
+                    <option value="L">📋 مشرف السكرتارية</option>
+                    <option value="DOKKI_STAFF">📋 سكرتارية الدقي</option>
                 </select>
             </div>
         </section>
 
         <section class="absence-section">
-            <div class="absence-title">⚠️ تسجيل غياب أي موظف اليوم (توجيه ذاتي حسب العدد):</div>
+            <div class="absence-title">⚠️ تسجيل غياب أي موظف اليوم (توجيه ذاتي حسب العدد مع الحفاظ على الترتيب):</div>
             <label class="checkbox-group">
                 <input type="checkbox" id="absent1" onchange="renderDashboard()"> غياب الموظف الأول
             </label>
@@ -140,93 +139,94 @@
     </div>
 
     <script>
-        // قاعدة البيانات الكامله للمهام
+        // قاعدة البيانات الكاملة بصيغتك وترتيبك الأصلي بالملي (تم دمج المتطابق التام فقط في سكرتارية الدقي)
         const tasks = [
             // ==================== سكرتارية الشيفت الصباحي ====================
-            { role: "F", section: "مهام بداية الشفت", title: "مراجعة مهام اليوم والأيام السابقة غير المنجزة", branch: "الكل", status: false },
-            { role: "F", section: "مهام بداية الشفت", title: "مراجعة شيت الغيابات", branch: "الكل", status: false },
-            { role: "F", section: "مهام بداية الشفت", title: "مراجعة واتس اب و واتساب بوت", branch: "الكل", status: false },
-            { role: "F", section: "خلال الشفت", title: "مراجعة المكالمات الفائتة على جميع الموبايلات", branch: "الكل", status: false },
-            { role: "F", section: "خلال الشفت", title: "تأكيد المواعيد غير المؤكدة لليوم", branch: "الكل", status: false },
-            { role: "F", section: "خلال الشفت", title: "تسكين المواعيد غير المسكنة لليوم من قائمة الانتظار والـ follow up", branch: "الكل", status: false },
-            { role: "F", section: "خلال الشفت", title: "مراجعة شيت التثبيتات للمرضى الذين ينتهي تثبيتهم اليوم", branch: "الكل", status: false },
-            { role: "F", section: "خلال الشفت", title: "حجز المواعيد غير المحجوزة للمرضى بجدول اليوم وتكرارها", branch: "الكل", status: false },
-            { role: "F", section: "خلال الشفت", title: "تأكيد المواعيد لليوم التالي", branch: "الكل", status: false },
-            { role: "F", section: "خلال الشفت", title: "تسكين المواعيد غير المسكنة للغد من قائمة الانتظار والـ follow up لليوم التالي", branch: "الكل", status: false },
-            { role: "F", section: "خلال الشفت", title: "متابعة الوصول للمرضى", branch: "الكل", status: false },
-            { role: "F", section: "خلال الشفت", title: "متابعة واتس اب", branch: "الكل", status: false },
-            { role: "F", section: "خلال الشفت", title: "متابعة موبايل", branch: "الكل", status: false },
-            { role: "F", section: "مهام نهاية الشفت", title: "مراجعة المهام الإجمالية المقفلة", branch: "الكل", status: false },
-            { role: "F", section: "مهام نهاية الشفت", title: "مراجعة شيت الغيابات", branch: "الكل", status: false },
+            { role: "F", section: "في بدايه الشيف", title: "مراجعه مهام اليوم والايام السابقه غير المنجزه", branch: "الكل", status: false },
+            { role: "F", section: "في بدايه الشيف", title: "مراجعه شيت الغيابات", branch: "الكل", status: false },
+            { role: "F", section: "في بدايه الشيف", title: "مراجعة واتس اب و واتساب بوت", branch: "الكل", status: false },
+            { role: "F", section: "في خلال الشفت", title: "مراجعة المكالمات الفائته على جميع الموبايلات", branch: "الكل", status: false },
+            { role: "F", section: "في خلال الشفت", title: "تأكيد المواعيد غير المؤكده لليوم", branch: "الكل", status: false },
+            { role: "F", section: "في خلال الشفت", title: "تسكين المواعيد غير المسكنه لليوم من قائمة الانتظار و ال follow up", branch: "الكل", status: false },
+            { role: "F", section: "في خلال الشفت", title: "مراجعة شيت التثبيتات للمرضي ال تثبيتهم انتهي اليوم", branch: "الكل", status: false },
+            { role: "F", section: "في خلال الشفت", title: "حجز المواعيد غير المحجوزه للمرضي بجدول اليوم و تكرارها", branch: "الكل", status: false },
+            { role: "F", section: "في خلال الشفت", title: "تأكيد المواعيد لليوم التالي", branch: "الكل", status: false },
+            { role: "F", section: "في خلال الشفت", title: "تسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي", branch: "الكل", status: false },
+            { role: "F", section: "في خلال الشفت", title: "متابعة الوصول للمرضي", branch: "الكل", status: false },
+            { role: "F", section: "في خلال الشفت", title: "متابعة واتس اب", branch: "الكل", status: false },
+            { role: "F", section: "في خلال الشفت", title: "متابعة موبايل", branch: "الكل", status: false },
+            { role: "F", section: "في  نهايه الشيفت", title: "مراجعة المهام", branch: "الكل", status: false },
+            { role: "F", section: "في  نهايه الشيفت", title: "مراجعة شيت الغيابات", branch: "الكل", status: false },
 
             // ==================== سكرتارية عيادة 2 ====================
-            { role: "J", section: "مهام بداية الشفت", title: "مهام اليوم والأيام السابقة غير المنجزة", branch: "الهرم", status: false },
-            { role: "J", section: "مهام بداية الشفت", title: "شيت الغيابات", branch: "الهرم", status: false },
-            { role: "J", section: "مهام بداية الشفت", title: "مراجعة واتس اب", branch: "الهرم", status: false },
-            { role: "J", section: "مهام بداية الشفت", title: "مراجعة المكالمات الفائتة", branch: "الهرم", status: false },
-            { role: "J", section: "خلال الشفت", title: "تأكيد المواعيد لليوم التالي", branch: "الهرم", status: false },
-            { role: "J", section: "خلال الشفت", title: "تسكين المواعيد غير المسكنة للغد من قائمة الانتظار والـ follow up لليوم التالي", branch: "الهرم", status: false },
-            { role: "J", section: "خلال الشفت", title: "متابعة الوصول للمرضى في عيادة ٢", branch: "الهرم", status: false },
-            { role: "J", section: "خلال الشفت", title: "متابعة واتس اب بوت", branch: "الهرم", status: false },
-            { role: "J", section: "خلال الشفت", title: "متابعة موبايل ٠١١", branch: "الهرم", status: false },
-            { role: "J", section: "مهام نهاية الشفت", title: "مراجعة المهام المنجزة بقسم 2", branch: "الهرم", status: false },
-            { role: "J", section: "مهام نهاية الشفت", title: "مراجعة شيت الغيابات واللوج", branch: "الهرم", status: false },
+            { role: "J", section: "في بدايه الشفت", title: "مهام اليوم والايام السابقه غير المنجزه", branch: "الهرم", status: false },
+            { role: "J", section: "في بدايه الشفت", title: "شيت الغيابات", branch: "الهرم", status: false },
+            { role: "J", section: "في بدايه الشفت", title: "مراجعة واتس اب", branch: "الهرم", status: false },
+            { role: "J", section: "في بدايه الشفت", title: "مراجعة المكالمات الفائته", branch: "الهرم", status: false },
+            { role: "J", section: "في خلال الشيفت", title: "تأكيد المواعيد لليوم التالي", branch: "الهرم", status: false },
+            { role: "J", section: "في خلال الشيفت", title: "تسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي", branch: "الهرم", status: false },
+            { role: "J", section: "في خلال الشيفت", title: "متابعة الوصول للمرضي في عياده ٢", branch: "الهرم", status: false },
+            { role: "J", section: "في خلال الشيفت", title: "متابعة واتس اب يوت", branch: "الهرم", status: false },
+            { role: "J", section: "في خلال الشيفت", title: "متابعة موبايل ٠١١", branch: "الهرم", status: false },
+            { role: "J", section: "في نهايه الشفت", title: "mراجعة المهام", branch: "الهرم", status: false },
+            { role: "J", section: "في نهايه الشفت", title: "مراجعة شيت الغيابات", branch: "الهرم", status: false },
 
             // ==================== سكرتارية عيادة واحد ====================
-            { role: "H", section: "مهام بداية الشفت", title: "مهام اليوم والأيام السابقة غير المنجزة", branch: "الهرم", status: false },
-            { role: "H", section: "مهام بداية الشفت", title: "شيت الغيابات", branch: "الهرم", status: false },
-            { role: "H", section: "مهام بداية الشفت", title: "مراجعة واتس اب", branch: "الهرم", status: false },
-            { role: "H", section: "مهام بداية الشفت", title: "مراجعة المكالمات الفائتة", branch: "الهرم", status: false },
-            { role: "H", section: "خلال الشفت", title: "تأكيد المواعيد لليوم التالي الخاص بعيادة واحد", branch: "الهرم", status: false },
-            { role: "H", section: "خلال الشفت", title: "تسكين المواعيد غير المسكنة للغد من قائمة الانتظار والـ follow up لليوم التالي الخاصة ب عيادة واحد", branch: "الهرم", status: false },
-            { role: "H", section: "خلال الشفت", title: "متابعة الوصول للمرضى في عيادة ١", branch: "الهرم", status: false },
-            { role: "H", section: "خلال الشفت", title: "متابعة واتس اب", branch: "الهرم", status: false },
-            { role: "H", section: "خلال الشفت", title: "متابعة موبايل 010", branch: "الهرم", status: false },
-            { role: "H", section: "مهام نهاية الشفت", title: "مراجعة المهام المنجزة بقسم 1", branch: "الهرم", status: false },
-            { role: "H", section: "مهام نهاية الشفت", title: "مراجعة شيت الغيابات الخاص بالشفت", branch: "الهرم", status: false },
+            { role: "H", section: "في بدايه الشفت", title: "مهام اليوم والايام السابقه غير المنجزه", branch: "الهرم", status: false },
+            { role: "H", section: "في بدايه الشفت", title: "شيت الغيابات", branch: "الهرم", status: false },
+            { role: "H", section: "في بدايه الشفت", title: "مراجعة واتس اب", branch: "الهرم", status: false },
+            { role: "H", section: "في بدايه الشفت", title: "مراجعة المكالمات الفائته", branch: "الهرم", status: false },
+            { role: "H", section: "في خلال الشيفت", title: "تأكيد المواعيد لليوم التالي الخاص بعياده واحد", branch: "الهرم", status: false },
+            { role: "H", section: "في خلال الشيفت", title: "tسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي الخاصه ب عياده واحد", branch: "الهرم", status: false },
+            { role: "H", section: "في خلال الشيفت", title: "متابعة الوصول للمرضي في عياده ١", branch: "الهرم", status: false },
+            { role: "H", section: "في خلال الشيفت", title: "متابعة واتس اب", branch: "الهرم", status: false },
+            { role: "H", section: "في خلال الشيفت", title: "متابعة موبايل 010", branch: "الهرم", status: false },
+            { role: "H", section: "في نهايه الشفت", title: "مراجعة المهام", branch: "الهرم", status: false },
+            { role: "H", section: "في نهايه الشفت", title: "مراجعة شيت الغيابات", branch: "الهرم", status: false },
 
             // ==================== مشرف السكرتارية ====================
-            { role: "L", section: "مهام بداية الشفت", title: "مراجعة مهام اليوم والأيام السابقة غير المنجزة للمنظومة", branch: "الكل", status: false },
-            { role: "L", section: "مهام بداية الشفت", title: "مراجعة شيت الغيابات للفروع", branch: "الكل", status: false },
-            { role: "L", section: "خلال الشفت", title: "الاشراف على جميع المهام ومتابعة الفروع اللحظية", branch: "الكل", status: false },
-            { role: "L", section: "خلال الشفت", title: "مهام المخزن المركزي واللوجستيات", branch: "الكل", status: false },
-            { role: "L", section: "خلال الشفت", title: "مهام التحصيل ومطابقة الصناديق", branch: "الكل", status: false },
-            { role: "L", section: "مهام نهاية الشفت", title: "مراجعة المهام والـ Checklist الإجمالي للفروع", branch: "الكل", status: false },
-            { role: "L", section: "مهام نهاية الشفت", title: "مراجعة شيت الغيابات الكلي للعيادات", branch: "الكل", status: false },
-            { role: "L", section: "مهام نهاية الشفت", title: "مراجعة مواعيد من (لم يتم الحضور) و من قام ب (الالغاء) و (الاسترداد) و اتخاذ اجراءات بخصوصه في حالة التكرار (في الشيت و في المواعيد المكرره)", branch: "الكل", status: false },
-            { role: "L", section: "مهام نهاية الشفت", title: "حجز اعادات التقييم و تسجيل حالة تجديد مرضي اعادات التقييم", branch: "الكل", status: false },
-            { role: "L", section: "مهام نهاية الشفت", title: "مراجعة جدول اليوم التالي (مواعيد الدكاتره و مواعيد البارتشنات)", branch: "الكل", status: false },
-            { role: "L", section: "مهام نهاية الشفت", title: "مراجعة اي اتصالات فائته علي موبايل 010 - 011", branch: "الكل", status: false },
-            { role: "L", section: "مهام نهاية الشفت", title: "مراجعة حاله التثبيت لكل الكشوفات الجديده", branch: "الكل", status: false },
-            { role: "L", section: "مهام نهاية الشفت", title: "مراجعة علامات المرضى لكل الكشوفات الجديده", branch: "الكل", status: false },
-            { role: "L", section: "مهام نهاية الشفت", title: "مراجعة اي رسائل فائته علي واتس اب او واتس اب بوت", branch: "الكل", status: false },
-            { role: "L", section: "مهام نهاية الشفت", title: "تقفيل الحسابات والمطابقة اليومية للإدارة", branch: "الكل", status: false },
+            { role: "L", section: "في بدايه الشفت", title: "مراجعه مهام اليوم والايام السابقه غير المنجزه", branch: "الكل", status: false },
+            { role: "L", section: "في بدايه الشفت", title: "مراجعه شيت الغيابات", branch: "الكل", status: false },
+            { role: "L", section: "في خلال الشيفت", title: "الاشراف على جميع المهام", branch: "الكل", status: false },
+            { role: "L", section: "في خلال الشيفت", title: "مهام المخزن", branch: "الكل", status: false },
+            { role: "L", section: "في خلال الشيفت", title: "مهام التحصيل", branch: "الكل", status: false },
+            { role: "L", section: "في نهايه الشفت", title: "مراجعة المهام", branch: "الكل", status: false },
+            { role: "L", section: "في نهايه الشفت", title: "مراجعة شيت الغيابات", branch: "الكل", status: false },
+            { role: "L", section: "في نهايه الشفت", title: "مراجعة مواعيد من (لم يتم الحضور) و من قام ب (الالغاء) و (الاسترداد) و اتخاذ اجراءات بخصوصه في حالة التكرار (في الشيت و في المواعيد المكرره)", branch: "الكل", status: false },
+            { role: "L", section: "في نهايه الشفت", title: "حجز اعادات التقييم و تسجيل حالة تجديد مرضي اعادات التقييم", branch: "الكل", status: false },
+            { role: "L", section: "في نهايه الشفت", title: "مراجعة جدول اليوم التالي (مواعيد الدكاتره و مواعيد البارتشنات)", branch: "الكل", status: false },
+            { role: "L", section: "في نهايه الشفت", title: "مراجعة اي اتصالات فائته علي موبايل 010 - 011", branch: "الكل", status: false },
+            { role: "L", section: "في نهايه الشفت", title: "مراجعه حاله التثبيت لكل الكشوفات الجديده", branch: "الكل", status: false },
+            { role: "L", section: "في نهايه الشفت", title: "مراجعه علامات المرضى لكل الكشوفات الجديده", branch: "الكل", status: false },
+            { role: "L", section: "في نهايه الشفت", title: "مراجعة اي رسائل فائته علي واتس اب او واتس اب بوت", branch: "الكل", status: false },
+            { role: "L", section: "في نهايه الشفت", title: "تقفيل الحسابات", branch: "الكل", status: false },
 
-            // ==================== سكرتارية فرع الدقي المستقلة ====================
-            { role: "DOKKI_STAFF", section: "مهام بداية الشفت", title: "مهام اليوم والايام السابقه غير المنجزه فرع الدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "مهام بداية الشفت", title: "شيت الغيابات والتحقق من الحضور فرع الدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "مهام بداية الشفت", title: "مراجعة واتس اب المخصص للفرع", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "مهام بداية الشفت", title: "مراجعة المكالمات الفائته على خطوط الدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "خلال الشفت", title: "تأكيد المواعيد غير المؤكده لليوم لفرع الدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "خلال الشفت", title: "تسكين المواعيد غير المسكنه لليوم من قائمة الانتظار و ال follow up فرع الدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "خلال الشفت", title: "مراجعة شيت التثبيتات للمرضي ال تثبيتهم انتهي اليوم بالدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "خلال الشفت", title: "حجز المواعيد غير المحجوزة للممرضى بجدول اليوم و تكرارها بالدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "خلال الشفت", title: "تأكيد المواعيد لليوم التالي فرع الدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "خلال الشفت", title: "تسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي بالدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "خلال الشفت", title: "متابعة الوصول للمرضي وصالة العيادة بالدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "خلال الشفت", title: "متابعة واتس اب والرد السريع للفرع", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "خلال الشفت", title: "متابعة موبايل الفرع والاتصالات الواردة", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "خلال الشفت", title: "مهام المخزن والجرد بالدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "مهام نهاية الشفت", title: "مراجعة المهام الإجمالية لشفت الدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "مهام نهاية الشفت", title: "مراجعة شيت الغيابات لفرع الدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "مهام نهاية الشفت", title: "مراجعة مواعيد من (لم يتم الحضور) و من قام ب (الالغاء) و (الاسترداد) بالدقي واتخاذ الإجراءات", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "مهام نهاية الشفت", title: "حجز اعادات التقييم و تسجيل حالة تجديد مرضي اعادات التقييم بالدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "مهام نهاية الشفت", title: "مراجعة جدول اليوم التالي (مواعيد الدكاتره و مواعيد البارتشنات) بالدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "مهام نهاية الشفت", title: "مراجعة اي اتصالات فائته علي موبايل 010 - 011 بالدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "مهام نهاية الشفت", title: "مراجعه حاله التثبيت لكل الكشوفات الجديده بالدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "مهام نهاية الشفت", title: "مراجعه علامات المرضى لكل الكشوفات الجديده بالدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "مهام نهاية الشفت", title: "مراجعة اي رسائل فائته علي واتس اب او واتس اب بوت بالدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "مهام نهاية الشفت", title: "تقفيل الحسابات اليومية وخزينة الدقي", branch: "الدقي", status: false }
+            // ==================== سكرتارية الدقي ====================
+            { role: "DOKKI_STAFF", section: "سكرتاريه الدقي مهام بدايه الشفت", title: "مهام اليوم والايام السابقه غير المنجزه", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "سكرتاريه الدقي مهام بدايه الشفت", title: "شيت الغيابات", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "سكرتاريه الدقي مهام بدايه الشفت", title: "مراجعة واتس اب", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "سكرتاريه الدقي مهام بدايه الشفت", title: "مراجعة المكالمات الفائته", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "خلال الشيفت", title: "تأكيد المواعيد غير المؤكده لليوم", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "خلال الشيفت", title: "تسكين المواعيد غير المسكنه لليوم من قائمة الانتظار و ال follow up", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "خلال الشيفت", title: "مراجعة شيت التثبيتات للمرضي ال تثبيتهم انتهي اليوم", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "خلال الشيفت", title: "حجز المواعيد غير المحجوزه للمرضي بجدول اليوم و تكرارها", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "خلال الشيفت", title: "تأكيد المواعيد لليوم التالي", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "خلال الشيفت", title: "تسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "خلال الشيفت", title: "متابعة الوصول للمرضي", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "خلال الشيفت", title: "متابعة واتس اب", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "خلال الشيفت", title: "متابعة موبايل", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "خلال الشيفت", title: "مهام المخزن", branch: "الدقي", status: false },
+            // تم دمج البنود المكررة المتطابقة تماماً هنا في نهاية شفت الدقي لحمايتها وحصرها في بند واحد
+            { role: "DOKKI_STAFF", section: "مهام نهايه الشيفت", title: "مراجعة المهام", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "مهام نهايه الشيفت", title: "مراجعة شيت الغيابات", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "مهام نهايه الشيفت", title: "مراجعة مواعيد من (لم يتم الحضور) و من قام ب (الالغاء) و (الاسترداد) و اتخاذ اجراءات بخصوصه في حالة التكرار (في الشيت و في المواعيد المكرره)", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "مهام نهايه الشيفت", title: "حجز اعادات التقييم و تسجيل حالة تجديد مرضي اعادات التقييم", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "مهام نهايه الشيفت", title: "مراجعة جدول اليوم التالي (مواعيد الدكاتره و مواعيد البارتشنات)", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "مهام نهايه الشيفت", title: "مراجعة اي اتصالات فائته علي موبايل 010 - 011", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "مهام نهايه الشيفت", title: "مراجعه حاله التثبيت لكل الكشوفات الجديده", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "مهام نهايه الشيفت", title: "مراجعه علامات المرضى لكل الكشوفات الجديده", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "مهام نهايه الشيفت", title: "مراجعة اي رسائل فائته علي واتس اب او واتس اب بوت", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "مهام نهايه الشيفت", title: "تقفيل الحسابات", branch: "الدقي", status: false }
         ];
 
         const roleLabels = { 
@@ -246,7 +246,6 @@
             const branchFilter = document.getElementById('branchFilter').value;
             const roleFilter = document.getElementById('roleFilter').value;
             
-            // عد عدد خانات الغياب النشطة بشكل عام (بغض النظر عن الاسم)
             const countAbsent1 = document.getElementById('absent1').checked ? 1 : 0;
             const countAbsent2 = document.getElementById('absent2').checked ? 1 : 0;
             const totalAbsents = countAbsent1 + countAbsent2;
@@ -267,21 +266,26 @@
             let pendingTasks = 0;
             
             let sectionMetrics = {
-                "مهام بداية الشفت": { total: 0, comp: 0 },
-                "خلال الشفت": { total: 0, comp: 0 },
-                "مهام نهاية الشفت": { total: 0, comp: 0 }
+                "في بدايه الشيف": { total: 0, comp: 0 },
+                "في بدايه الشفت": { total: 0, comp: 0 },
+                "سكرتاريه الدقي مهام بدايه الشفت": { total: 0, comp: 0 },
+                "في خلال الشفت": { total: 0, comp: 0 },
+                "في خلال الشيفت": { total: 0, comp: 0 },
+                "خلال الشيفت": { total: 0, comp: 0 },
+                "في  نهايه الشيفت": { total: 0, comp: 0 },
+                "في نهايه الشفت": { total: 0, comp: 0 },
+                "مهام نهايه الشيفت": { total: 0, comp: 0 }
             };
 
             let bodyHTML = '';
             let hasData = false;
 
+            // الحفاظ التام على ترتيب المصفوفة الأصلي دون تغيير عند الفلترة أو الغياب
             tasks.forEach((task, index) => {
-                // ---- تنفيذ منطق أرقام الغياب التكتيكي المحدّد بالملي ----
                 let currentOwner = task.role;
                 let isTransferred = false;
                 let transferType = ''; 
 
-                // الحالة الأولى: لو غاب موظف واحد فقط (إجمالي الغيابات = 1) 👈 تدمج مهام عيادة 2 وترحل لـ عيادة 1
                 if (totalAbsents === 1) {
                     if (task.role === 'J') {
                         currentOwner = 'H';
@@ -289,7 +293,6 @@
                         transferType = 'TO_H';
                     }
                 } 
-                // الحالة الثانية: لو غاب موظفين اثنين (إجمالي الغيابات = 2) 👈 ترحل مهام عيادة 1 وعيادة 2 معاً لـ المشرف L
                 else if (totalAbsents === 2) {
                     if (task.role === 'H' || task.role === 'J') {
                         currentOwner = 'L';
@@ -298,7 +301,6 @@
                     }
                 }
 
-                // التصفية الفورية بناءً على الموظف الفعلي المعين للمهمة بعد الترحيل
                 const matchBranch = branchFilter === 'ALL' || task.branch === 'الكل' || task.branch === branchFilter;
                 const matchRole = roleFilter === 'ALL' || currentOwner === roleFilter;
 
@@ -315,11 +317,10 @@
                     }
 
                     let rowClass = '';
-                    if (task.section.includes("بداية")) rowClass = 'row-start';
+                    if (task.section.includes("بدايه") || task.section.includes("بدء")) rowClass = 'row-start';
                     else if (task.section.includes("خلال")) rowClass = 'row-during';
-                    else if (task.section.includes("نهاية")) rowClass = 'row-end';
+                    else if (task.section.includes("نهايه") || task.section.includes("نهاية")) rowClass = 'row-end';
 
-                    // تشكيل البادج الوظيفي الذكي بناءً على التوجيه الجديد
                     let ownerBadge = '';
                     if (isTransferred) {
                         if (transferType === 'TO_H') {
@@ -352,21 +353,24 @@
             }
             tableBody.innerHTML = bodyHTML;
 
-            // تحديث العدادات اللحظية
+            // تحديث كروت الـ KPIs
             const overallPct = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
             document.getElementById('overallKPI').innerText = overallPct + '%';
             document.getElementById('pendingKPI').innerText = pendingTasks;
 
-            const startTotal = sectionMetrics["مهام بداية الشفت"].total;
-            const startPct = startTotal === 0 ? 0 : Math.round((sectionMetrics["مهام بداية الشفت"].comp / startTotal) * 100);
+            const startTotal = sectionMetrics["في بدايه الشيف"].total + sectionMetrics["في بدايه الشفت"].total + sectionMetrics["سكرتاريه الدقي مهام بدايه الشفت"].total;
+            const startComp = sectionMetrics["في بدايه الشيف"].comp + sectionMetrics["في بدايه الشفت"].comp + sectionMetrics["سكرتاريه الدقي مهام بدايه الشفت"].comp;
+            const startPct = startTotal === 0 ? 0 : Math.round((startComp / startTotal) * 100);
             document.getElementById('startKPI').innerText = startPct + '%';
 
-            const duringTotal = sectionMetrics["خلال الشفت"].total;
-            const duringPct = duringTotal === 0 ? 0 : Math.round((sectionMetrics["خلال الشفت"].comp / duringTotal) * 100);
+            const duringTotal = sectionMetrics["في خلال الشفت"].total + sectionMetrics["في خلال الشيفت"].total + sectionMetrics["خلال الشيفت"].total;
+            const duringComp = sectionMetrics["في خلال الشفت"].comp + sectionMetrics["في خلال الشيفت"].comp + sectionMetrics["خلال الشيفت"].comp;
+            const duringPct = duringTotal === 0 ? 0 : Math.round((duringComp / duringTotal) * 100);
             document.getElementById('duringKPI').innerText = duringPct + '%';
 
-            const endTotal = sectionMetrics["مهام نهاية الشفت"].total;
-            const endPct = endTotal === 0 ? 0 : Math.round((sectionMetrics["مهام نهاية الشفت"].comp / endTotal) * 100);
+            const endTotal = sectionMetrics["في  نهايه الشيفت"].total + sectionMetrics["في نهايه الشفت"].total + sectionMetrics["مهام نهايه الشيفت"].total;
+            const endComp = sectionMetrics["في  نهايه الشيفت"].comp + sectionMetrics["في نهايه الشفت"].comp + sectionMetrics["مهام نهايه الشيفت"].comp;
+            const endPct = endTotal === 0 ? 0 : Math.round((endComp / endTotal) * 100);
             document.getElementById('endKPI').innerText = endPct + '%';
         }
 

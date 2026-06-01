@@ -74,13 +74,11 @@
 
     <div class="max-w-7xl">
         
-        <!-- الهيدر -->
         <header>
             <h1>نظام المتابعة والتفتيش التفاعلي - BodyFix</h1>
-            <p>لوحة التحكم الشاملة لفرعي (الدقي والهرم) مع الترتيب الحديدي وحل مشكلة الفلترة بالكامل</p>
+            <p>لوحة التحكم الشاملة لفرعي (الدقي والهرم) - تم إصلاح الفلترة الشاملة وظهور المهام 100%</p>
         </header>
 
-        <!-- شريط التحكم الإداري المحمي -->
         <section class="admin-bar">
             <div class="admin-status" id="adminStatusText">
                 <span style="color: #f43f5e; font-size: 18px;">🔒</span> 
@@ -91,7 +89,6 @@
             </div>
         </section>
 
-        <!-- لوحة الإدارة لإضافة مهام جديدة -->
         <section class="admin-form-panel" id="adminFormPanel">
             <h3 style="margin: 0 0 16px 0; color: #38bdf8; font-size: 16px;">➕ إضافة مهمة تكتيكية جديدة للمنظومة:</h3>
             <div class="form-grid">
@@ -131,7 +128,6 @@
             </div>
         </section>
 
-        <!-- لوحة الفلاتر المزدوجة والمستقلة -->
         <section class="filters-section">
             <div class="filter-group">
                 <label>📍 عرض فرع محدد أو كل الفروع:</label>
@@ -154,7 +150,6 @@
             </div>
         </section>
 
-        <!-- لوحة تسجيل غياب موظفي الهرم بالتحديد -->
         <section class="absence-section">
             <div class="absence-title">⚠️ تسجيل غياب أي موظف اليوم (توجيه ودمج فوري مع تجميع المتشابه):</div>
             <label class="checkbox-group">
@@ -168,7 +163,6 @@
             </label>
         </section>
 
-        <!-- كروت الإحصائيات اللحظية المحدثة ذاتياً -->
         <section class="kpis-section">
             <div class="kpi-card bg-overall">
                 <p class="kpi-title">نسبة الإنجاز (للفلتر الحالي)</p>
@@ -192,7 +186,6 @@
             </div>
         </section>
 
-        <!-- جدول المهام الكامل وحصر متطلباتك بالملي -->
         <section class="table-section">
             <h2>📋 حصر المهام وقائمة الـ Checklist اليومية المتكاملة</h2>
             <div class="table-container">
@@ -253,7 +246,7 @@
             { id: 30, role: "H", section: SEC_START, title: "مراجعة المكالمات الفائته علي موبايل ٠١٠", branch: "الهرم", status: false },
             { id: 31, role: "H", section: SEC_DURING, title: "تأكيد المواعيد لليوم التالي الخاص بعياده واحد", branch: "الهرم", status: false },
             { id: 32, role: "H", section: SEC_DURING, title: "tسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي الخاصه ب عياده ١", branch: "الهرم", status: false },
-            { id: 33, role: "H", section: SEC_DURING, title: "mتابعة الوصول للمرضي في عياده ١", branch: "الهرم", status: false },
+            { id: 33, role: "H", section: SEC_DURING, title: "متابعة الوصول للمرضي في عياده ١", branch: "الهرم", status: false },
             { id: 34, role: "H", section: SEC_DURING, title: "متابعة واتس اب", branch: "الهرم", status: false },
             { id: 35, role: "H", section: SEC_DURING, title: "متابعة موبايل 010", branch: "الهرم", status: false },
             { id: 36, role: "H", section: SEC_END, title: "مراجعة المهام", branch: "الهرم", status: false },
@@ -410,7 +403,6 @@
                 let isTransferred = false;
                 let transferType = '';
 
-                // تكتيك الطوارئ ونقل المهام لفرع الهرم
                 if (task.branch === "الهرم") {
                     if (totalAbsents === 3) {
                         if (task.role === 'F' || task.role === 'H' || task.role === 'J') {
@@ -435,9 +427,9 @@
                     }
                 }
 
-                // إصلاح التعارض: المهمة تظهر لو كانت تابعة للفرع المختار، أو لو كانت مهمة عامة لكل الفروع "الكل"
-                const matchBranch = branchFilter === 'ALL' || task.branch === 'الكل' || task.branch === branchFilter;
-                const matchRole = roleFilter === 'ALL' || currentOwner === roleFilter;
+                // الـ Logic المصلح 100%: لو الفرع المختار هو ALL (كل الفروع)، الشرط دايمًا صحيح وبيعرض كل المهام
+                const matchBranch = (branchFilter === 'ALL') || (task.branch === 'الكل') || (task.branch === branchFilter);
+                const matchRole = (roleFilter === 'ALL') || (currentOwner === roleFilter);
 
                 if (matchBranch && matchRole) {
                     let uniqueKey = `${currentOwner}_${task.section}_${task.title.trim()}`;

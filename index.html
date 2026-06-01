@@ -76,7 +76,7 @@
         
         <header>
             <h1>نظام المتابعة والتفتيش التفاعلي - BodyFix</h1>
-            <p>لوحة التحكم النهائية والمصلحة بالكامل لفرعي الدقي والهرم - المهام تعمل وتظهر 100% مع كافة توليفات الفلاتر</p>
+            <p>لوحة التحكم النهائية والشاملة لفرعي (الدقي والهرم) - تم إصلاح الفلترة وتأمين المنظومة 100%</p>
         </header>
 
         <section class="admin-bar">
@@ -208,7 +208,15 @@
         let isAdminAuthenticated = false;
         let taskIdCounter = 100;
 
-        // قاعدة البيانات النظيفة والموثوقة بصيغتك الأصلية كاملة
+        // مسميات الأفراد للبادجات المعروضة في الشاشة
+        const roleLabels = { 
+            'F': 'سكرتارية الشيفت الصباحي', 
+            'H': 'سكرتارية عيادة واحد', 
+            'J': 'سكرتارية عيادة اثنين', 
+            'L': 'مشرف السكرتارية', 
+            'DOKKI_STAFF': 'سكرتارية الدقي'
+        };
+
         const originalTasks = [
             // ==================== سكرتارية الشيفت الصباحي ====================
             { id: 1, role: "F", section: SEC_START, title: "مراجعه مهام اليوم والايام السابقه غير المنجزه", branch: "الهرم", status: false },
@@ -242,7 +250,7 @@
 
             // ==================== سكرتارية عيادة واحد ====================
             { id: 27, role: "H", section: SEC_START, title: "مراجعه مهام اليوم والايام السابقه غير المنجزه", branch: "الهرم", status: false },
-            { id: 28, role: "H", section: SEC_START, title: "mراجعه شيت الغيابات", branch: "الهرم", status: false },
+            { id: 28, role: "H", section: SEC_START, title: "مراجعه شيت الغيابات", branch: "الهرم", status: false },
             { id: 29, role: "H", section: SEC_START, title: "مراجعة واتس اب", branch: "الهرم", status: false },
             { id: 30, role: "H", section: SEC_START, title: "مراجعة المكالمات الفائته علي موبايل ٠١٠", branch: "الهرم", status: false },
             { id: 31, role: "H", section: SEC_DURING, title: "تأكيد المواعيد لليوم التالي الخاص بعياده واحد", branch: "الهرم", status: false },
@@ -380,11 +388,12 @@
             const branchFilter = document.getElementById('branchFilter').value;
             const roleFilter = document.getElementById('roleFilter').value;
             
-            // قراءة خانات غياب الهرم لحساب التوجيه وسيناريو الـ 3 غيابات
+            // قراءة خانات الغياب الحالية لفرع الهرم
             const isF_Absent = document.getElementById('absentF').checked;
-            const isH_Absent = document.getElementById('absentH').checked ? 1 : 0;
-            const isJ_Absent = document.getElementById('absentJ').checked ? 1 : 0;
-            const totalAbsents = (isF_Absent ? 1 : 0) + isH_Absent + isJ_Absent;
+            const isH_Absent = document.getElementById('absentH').checked;
+            const isJ_Absent = document.getElementById('absentJ').checked;
+            
+            const totalAbsents = (isF_Absent ? 1 : 0) + (isH_Absent ? 1 : 0) + (isJ_Absent ? 1 : 0);
 
             const tableBody = document.getElementById('tableBody');
             
@@ -396,11 +405,11 @@
                 let isTransferred = false;
                 let transferType = '';
 
-                // الـ Logic الحديدي لنقل المهام في الهرم حسب الأعداد:
+                // منطق الطوارئ الحديدي لفرع الهرم بناءً على عدد الغيابات الإجمالي:
                 if (task.branch === "الهرم") {
                     if (totalAbsents === 3) {
                         if (task.role === 'F' || task.role === 'H' || task.role === 'J') {
-                            currentOwner = 'L'; // 🚨 غياب 3 موظفين يحول الهرم كليًا للمشرف (سيناريو الدقي)
+                            currentOwner = 'L'; // غياب 3 موظفين يحول الهرم كليًا للمشرف (سيناريو الدقي)
                             isTransferred = true;
                             transferType = 'TO_L_3';
                         }
@@ -419,15 +428,20 @@
                     }
                 }
 
-                // ⚡ تصفية الفلاتر الصافية والموثوقة 100%:
-                // شرط الفرع: يظهر لو كان ALL، أو لو الفرع متطابق تماماً، أو لو المهمة مشتركة "الكل"
-                const matchBranch = (branchFilter === 'ALL') || (task.branch === 'الكل') || (task.branch === branchFilter);
+                // ⚡ تصفية الفلاتر الحديدية المستقلة بنسبة 100%:
+                // يظهر الصف لو فرع الجدول متوافق مع اختيارك، أو لو اخترت ALL، أو لو المهمة مشتركة "الكل"
+                let isBranchMatch = (branchFilter === 'ALL') || (task.branch === 'الكل') || (task.branch === branchFilter);
                 
-                // شرط الموظف المسؤول: يظهر لو كان المشرف اختار ALL، أو لو الموظف الفعلي الحالي (بعد النقل والغياب) متطابق
-                const matchRole = (roleFilter === 'ALL') || (currentOwner === roleFilter);
+                // يظهر الصف لو الموظف الفعلي المكلف بالمهمة حالياً (بعد الغياب والنقل) متوافق مع الفلتر، أو لو اخترت ALL
+                let isRoleMatch = (roleFilter === 'ALL') || (currentOwner === roleFilter);
 
-                if (matchBranch && matchRole) {
-                    // الدمج التام لمنع التكرار (المسؤول الحالي + الفترة + نص البند بالملي)
+                // إستثناء لفرع الدقي المستقل ليقرأ مهام تيمه بشكل كامل ومرن
+                if (branchFilter === 'الدقي' && task.branch === 'الدقي' && roleFilter === 'ALL') {
+                    isRoleMatch = true;
+                }
+
+                if (isBranchMatch && isRoleMatch) {
+                    // دمج فريد لمنع تكرار البنود المتطابقة تماماً للشخص الفعلي حالياً
                     let uniqueKey = `${currentOwner}_${task.section}_${task.title.trim()}`;
 
                     if (!seenTasks[uniqueKey]) {
@@ -448,7 +462,7 @@
                 }
             });
 
-            // الفرز الحديدي والتجميع الصارم (بداية ← خلال ← نهاية)
+            // الفرز الصارم (بداية ← خلال ← نهاية)
             const sectionOrder = [SEC_START, SEC_DURING, SEC_END];
             processedTasks.sort((a, b) => {
                 let secDiff = sectionOrder.indexOf(a.section) - sectionOrder.indexOf(b.section);
@@ -474,7 +488,8 @@
                 if (task.section === SEC_START) rowClass = 'row-start';
                 else if (task.section === SEC_END) rowClass = 'row-end';
 
-                let ownerBadge = `<span class="badge">${roleLabels[task.currentOwner]}</span>`;
+                let currentLabel = roleLabels[task.currentOwner] || "سكرتارية الدقي";
+                let ownerBadge = `<span class="badge">${currentLabel}</span>`;
                 if (task.isTransferred) {
                     if (task.transferType === 'TO_H') {
                         ownerBadge = `<span class="badge badge-transfer">🔄 دمج: عيادة 1 يشيل شغل عيادة 2</span>`;

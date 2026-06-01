@@ -16,13 +16,23 @@
         @media (min-width: 768px) { .filters-section { grid-template-columns: 1fr 1fr; } }
         .filter-group { display: flex; flex-direction: column; gap: 8px; }
         label { font-weight: bold; color: #cbd5e1; font-size: 14px; }
-        select { width: 100%; padding: 12px; background-color: #0f172a; border: 1px solid #475569; border-radius: 12px; color: #f1f5f9; font-size: 14px; outline: none; cursor: pointer; }
-        select:focus { border-color: #38bdf8; }
+        select, input[type="text"] { width: 100%; padding: 12px; background-color: #0f172a; border: 1px solid #475569; border-radius: 12px; color: #f1f5f9; font-size: 14px; outline: none; cursor: pointer; box-sizing: border-box; }
+        select:focus, input[type="text"]:focus { border-color: #38bdf8; }
         
+        /* تصميم قسم تسجيل الغياب */
         .absence-section { background-color: #1e293b; padding: 16px; border-radius: 16px; border: 1px solid #334155; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; }
         .absence-title { font-weight: bold; color: #f43f5e; font-size: 14px; }
         .checkbox-group { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; }
         .checkbox-group input { width: 18px; height: 18px; cursor: pointer; }
+
+        /* شريط التحكم الإداري المحمي بكلمة مرور */
+        .admin-bar { background-color: #1e293b; padding: 16px; border-radius: 16px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+        .admin-status { font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+        
+        /* فورم إضافة المهام الجديدة (يظهر فقط للإدارة) */
+        .admin-form-panel { background-color: #1e293b; padding: 24px; border-radius: 16px; border: 2px dashed #38bdf8; display: none; flex-direction: column; gap: 16px; }
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        @media (min-width: 768px) { .form-grid { grid-template-columns: repeat(3, 1fr); } }
 
         .kpis-section { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
         @media (min-width: 768px) { .kpis-section { grid-template-columns: repeat(3, 1fr); } @media (min-width: 1024px) { .kpis-section { grid-template-columns: repeat(5, 1fr); } } }
@@ -47,9 +57,10 @@
         .row-during { border-right: 4px solid #4ade80; background-color: rgba(74, 222, 128, 0.01); }
         .row-end { border-right: 4px solid #f43f5e; background-color: rgba(244, 63, 94, 0.01); }
         
-        /* أسلوب خانة التعديل المباشر على المهام */
-        .editable-task { background: transparent; border: 1px solid transparent; color: #f1f5f9; width: 100%; padding: 6px; font-size: 13px; text-align: right; font-weight: 500; outline: none; border-radius: 6px; transition: all 0.2s; }
-        .editable-task:focus { background-color: #0f172a; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+        /* حقل النص المرن */
+        .editable-task-area { background: transparent; border: 1px solid transparent; color: #f1f5f9; width: 100%; min-width: 320px; max-width: 550px; padding: 6px; font-size: 13px; text-align: right; font-weight: 500; outline: none; border-radius: 6px; resize: none; overflow: hidden; display: block; box-sizing: border-box; font-family: inherit; line-height: 1.6; }
+        .editable-task-area.admin-active { border-bottom: 1px dashed #38bdf8; background-color: rgba(56, 189, 248, 0.03); }
+        .editable-task-area.admin-active:focus { background-color: #0f172a; border-color: #38bdf8; }
         
         .badge { background-color: #0f172a; color: #94a3b8; padding: 4px 8px; border-radius: 6px; border: 1px solid #334155; font-size: 11px; font-weight: 600; }
         .badge-branch { color: #22d3ee; border-color: rgba(34, 211, 238, 0.3); background-color: rgba(34, 211, 238, 0.05); }
@@ -59,6 +70,8 @@
         .btn { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; border: none; cursor: pointer; transition: all 0.2s; min-width: 90px; }
         .btn-success { background-color: #059669; color: white; }
         .btn-danger { background-color: #475569; color: #cbd5e1; }
+        .btn-primary { background-color: #0284c7; color: white; }
+        .btn-warning { background-color: #ea580c; color: white; }
         .btn:hover { transform: scale(1.05); }
     </style>
 </head>
@@ -68,10 +81,58 @@
         
         <header>
             <h1>نظام المتابعة والتفتيش التفاعلي - BodyFix</h1>
-            <p>لوحة التحكم الكاملة مع التعديل المباشر للمهام وسيناريوهات طوارئ الغياب لفرعي الدقي والهرم</p>
+            <p>لوحة التحكم الشاملة لفرعي (الدقي والهرم) مع حماية إدارية كاملة بكلمة مرور لإضافة وتعديل المهام</p>
         </header>
 
-        <!-- لوحة الفلاتر المزدوجة والمستقلة -->
+        <section class="admin-bar">
+            <div class="admin-status" id="adminStatusText">
+                <span style="color: #f43f5e; font-size: 18px;">🔒</span> 
+                <span style="color: #94a3b8;">وضع الموظف (عرض وتنفيذ الحالات فقط)</span>
+            </div>
+            <div>
+                <button class="btn btn-warning" id="adminToggleBtn" onclick="handleAdminAuth()">🔓 فتح لوحة التحكم الإدارية</button>
+            </div>
+        </section>
+
+        <section class="admin-form-panel" id="adminFormPanel">
+            <h3 style="margin: 0 0 16px 0; color: #38bdf8; font-size: 16px;">➕ إضافة مهمة تكتيكية جديدة للمنظومة:</h3>
+            <div class="form-grid">
+                <div class="filter-group">
+                    <label>👤 المكلف بالمهمة الأصلي:</label>
+                    <select id="newTaskRole">
+                        <option value="F">سكرتارية الشيفت الصباحي (F)</option>
+                        <option value="H">سكرتارية عيادة واحد (H)</option>
+                        <option value="J">سكرتارية عيادة اثنين (J)</option>
+                        <option value="L">مشرف السكرتارية (L)</option>
+                        <option value="DOKKI_STAFF">سكرتارية الدقي</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>⏱️ القسم الزمني للمهمة:</label>
+                    <select id="newTaskSection">
+                        <option value="START">في بدايه الشيفت 🟦</option>
+                        <option value="DURING">في خلال الشفت 🟩</option>
+                        <option value="END">في نهايه الشفت 🟥</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>🏥 الفرع الجغرافي المستهدف:</label>
+                    <select id="newTaskBranch">
+                        <option value="الهرم">فرع الهرم</option>
+                        <option value="الدقي">فرع الدقي</option>
+                        <option value="الكل">الكل (الفروع المشتركة)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-group" style="margin-top: 12px;">
+                <label>📝 نص ومضمون المهمة اليومية كاملاً:</label>
+                <input type="text" id="newTaskTitle" placeholder="اكتب هنا بيان المهمة بالصيغة المطلوبة بالظبط...">
+            </div>
+            <div style="margin-top: 8px; text-align: left;">
+                <button class="btn btn-success" onclick="addNewTask()">حفظ وإدراج المهمة فوراً</button>
+            </div>
+        </section>
+
         <section class="filters-section">
             <div class="filter-group">
                 <label>📍 عرض فرع محدد أو كل الفروع:</label>
@@ -94,9 +155,8 @@
             </div>
         </section>
 
-        <!-- لوحة تسجيل غياب موظفي الهرم بالتحديد لتنفيذ السيناريو الجديد -->
         <section class="absence-section">
-            <div class="absence-title">⚠️ تسجيل غياب موظفي الهرم (1 غياب = دمج لعيادة 1 | 2 غياب = للمشرف | 3 غياب = سيناريو الدقي):</div>
+            <div class="absence-title">⚠️ تسجيل غياب أي موظف اليوم (توجيه ودمج فوري مع تجميع المتشابه):</div>
             <label class="checkbox-group">
                 <input type="checkbox" id="absentF" onchange="renderDashboard()"> غياب الصباحي (F)
             </label>
@@ -108,7 +168,6 @@
             </label>
         </section>
 
-        <!-- كروت الإحصائيات اللحظية المحدثة ذاتياً -->
         <section class="kpis-section">
             <div class="kpi-card bg-overall">
                 <p class="kpi-title">نسبة الإنجاز (للفلتر الحالي)</p>
@@ -132,9 +191,8 @@
             </div>
         </section>
 
-        <!-- جدول المهام الكامل وحصر متطلباتك بالملي -->
         <section class="table-section">
-            <h2>📋 حصر المهام وقائمة الـ Checklist اليومية المتكاملة <span style="font-size: 12px; color: #94a3b8; font-weight: normal;">(اضغط على نص أي مهمة لتعديل صياغتها مباشرة)</span></h2>
+            <h2>📋 حصر المهام وقائمة الـ Checklist اليومية المتكاملة</h2>
             <div class="table-container">
                 <table id="tasksTable">
                     <thead>
@@ -148,12 +206,17 @@
     </div>
 
     <script>
-        // توحيد المجموعات الزمنية لفرز صارم
         const SEC_START = "في بدايه الشيفت";
         const SEC_DURING = "في خلال الشفت";
         const SEC_END = "في نهايه الشفت";
 
-        // قاعدة البيانات بصيغتك وترتيبك المعدل الأخير بالكلمة والحرف
+        // متغير لتتبع صلاحية وضع المسؤول والتحكم
+        let isAdminAuthenticated = false;
+
+        // عداد داخلي لتوليد معرفات فريدة للمهام الجديدة
+        let taskIdCounter = 100;
+
+        // قاعدة البيانات بصيغتك وترتيبك الأصلي بالكلمة والحرف
         const originalTasks = [
             // ==================== سكرتارية الشيفت الصباحي ====================
             { id: 1, role: "F", section: SEC_START, title: "مراجعه مهام اليوم والايام السابقه غير المنجزه", branch: "الهرم", status: false },
@@ -187,7 +250,7 @@
 
             // ==================== سكرتارية عيادة واحد ====================
             { id: 27, role: "H", section: SEC_START, title: "مراجعه مهام اليوم والايام السابقه غير المنجزه", branch: "الهرم", status: false },
-            { id: 28, role: "H", section: SEC_START, title: "mراجعه شيت الغيابات", branch: "الهرم", status: false },
+            { id: 28, role: "H", section: SEC_START, title: "مراجعه شيت الغيابات", branch: "الهرم", status: false },
             { id: 29, role: "H", section: SEC_START, title: "مراجعة واتس اب", branch: "الهرم", status: false },
             { id: 30, role: "H", section: SEC_START, title: "مراجعة المكالمات الفائته علي موبايل ٠١٠", branch: "الهرم", status: false },
             { id: 31, role: "H", section: SEC_DURING, title: "تأكيد المواعيد لليوم التالي الخاص بعياده واحد", branch: "الهرم", status: false },
@@ -210,213 +273,12 @@
             { id: 46, role: "L", section: SEC_END, title: "حجز اعادات التقييم و تسجيل حالة تجديد مرضي اعادات التقييم", branch: "الهرم", status: false },
             { id: 47, role: "L", section: SEC_END, title: "مراجعة جدول اليوم التالي (مواعيد الدكاتره و مواعيد البارتشنات)", branch: "الهرم", status: false },
             { id: 48, role: "L", section: SEC_END, title: "مراجعة اي اتصالات فائته علي موبايل 010 - 011", branch: "الهرم", status: false },
-            { id: 49, role: "L", section: SEC_END, title: "mراجعه حاله التثبيت لكل الكشوفات الجديده", branch: "الهرم", status: false },
-            { id: 50, role: "L", section: SEC_END, title: "mراجعه علامات المرضى لكل الكشوفات الجديده", branch: "الهرم", status: false },
+            { id: 49, role: "L", section: SEC_END, title: "مراجعه حاله التثبيت لكل الكشوفات الجديده", branch: "الهرم", status: false },
+            { id: 50, role: "L", section: SEC_END, title: "مراجعه علامات المرضى لكل الكشوفات الجديده", branch: "الهرم", status: false },
             { id: 51, role: "L", section: SEC_END, title: "مراجعة اي رسائل فائته علي واتس اب او واتس اب بوت", branch: "الهرم", status: false },
             { id: 52, role: "L", section: SEC_END, title: "تقفيل الحسابات", branch: "الهرم", status: false },
 
             // ==================== سكرتارية الدقي ====================
             { id: 53, role: "DOKKI_STAFF", section: SEC_START, title: "مراجعه مهام اليوم والايام السابقه غير المنجزه", branch: "الدقي", status: false },
             { id: 54, role: "DOKKI_STAFF", section: SEC_START, title: "مراجعه شيت الغيابات", branch: "الدقي", status: false },
-            { id: 55, role: "DOKKI_STAFF", section: SEC_START, title: "مراجعة واتس اب و واتساب بوت", branch: "الدقي", status: false },
-            { id: 56, role: "DOKKI_STAFF", section: SEC_START, title: "مراجعة المكالمات الفائته", branch: "الدقي", status: false },
-            { id: 57, role: "DOKKI_STAFF", section: SEC_DURING, title: "تأكيد المواعيد غير المؤكده لليوم", branch: "الدقي", status: false },
-            { id: 58, role: "DOKKI_STAFF", section: SEC_DURING, title: "تسكين المواعيد غير المسكنه لليوم من قائمة الانتظار و ال follow up", branch: "الدقي", status: false },
-            { id: 59, role: "DOKKI_STAFF", section: SEC_DURING, title: "مراجعة شيت التثبيتات للمرضي ال تثبيتهم انتهي اليوم", branch: "الدقي", status: false },
-            { id: 60, role: "DOKKI_STAFF", section: SEC_DURING, title: "حجز المواعيد غير المحجوزه للمرضي بجدول اليوم و تكرارها", branch: "الدقي", status: false },
-            { id: 61, role: "DOKKI_STAFF", section: SEC_DURING, title: "تأكيد المواعيد لليوم التالي", branch: "الدقي", status: false },
-            { id: 62, role: "DOKKI_STAFF", section: SEC_DURING, title: "تسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي", branch: "الدقي", status: false },
-            { id: 63, role: "DOKKI_STAFF", section: SEC_DURING, title: "متابعة الوصول للمرضي", branch: "الدقي", status: false },
-            { id: 64, role: "DOKKI_STAFF", section: SEC_DURING, title: "متابعة واتس اب", branch: "الدقي", status: false },
-            { id: 65, role: "DOKKI_STAFF", section: SEC_DURING, title: "متابعة موبايل", branch: "الدقي", status: false },
-            { id: 66, role: "DOKKI_STAFF", section: SEC_DURING, title: "مهام المخزن", branch: "الدقي", status: false },
-            { id: 67, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة المهام", branch: "الدقي", status: false },
-            { id: 68, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة شيت الغيابات", branch: "الدقي", status: false },
-            { id: 69, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة مواعيد من (لم يتم الحضور) و من قام ب (الالغاء) و (الاسترداد) و اتخاذ اجراءات بخصوصه في حالة التكرار (في الشيت و في المواعيد المكرره)", branch: "الدقي", status: false },
-            { id: 70, role: "DOKKI_STAFF", section: SEC_END, title: "حجز اعادات التقييم و تسجيل حالة تجديد مرضي اعادات التقييم", branch: "الدقي", status: false },
-            { id: 71, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة جدول اليوم التالي (مواعيد الدكاتره و مواعيد البارتشنات)", branch: "الدقي", status: false },
-            { id: 72, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة اي اتصالات فائته علي موبايل 010 - 011", branch: "الدقي", status: false },
-            { id: 73, role: "DOKKI_STAFF", section: SEC_END, title: "مراجه حاله التثبيت لكل الكشوفات الجديده", branch: "الدقي", status: false },
-            { id: 74, role: "DOKKI_STAFF", section: SEC_END, title: "مراجه علامات المرضى لكل الكشوفات الجديده", branch: "الدقي", status: false },
-            { id: 75, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة اي رسائل فائته علي واتس اب او واتس اب بوت", branch: "الدقي", status: false },
-            { id: 76, role: "DOKKI_STAFF", section: SEC_END, title: "تقفيل الحسابات", branch: "الدقي", status: false }
-        ];
-
-        const roleLabels = { 
-            'F': 'الصباحي (F)', 
-            'H': 'عيادة 1 (H)', 
-            'J': 'عيادة 2 (J)', 
-            'L': 'المشرف (L)', 
-            'DOKKI_STAFF': 'سكرتارية الدقي'
-        };
-
-        function toggleStatus(id) {
-            const task = originalTasks.find(t => t.id === id);
-            if (task) task.status = !task.status;
-            renderDashboard();
-        }
-
-        // دالة تحديث النص المعدّل للمهمة وحفظها مباشرة في الذاكرة
-        function updateTaskTitle(id, newTitle) {
-            const task = originalTasks.find(t => t.id === id);
-            if (task) task.title = newTitle;
-            // يعاد التحديث لضمان مطابقة وإعادة حساب الـ KPIs لو حصل دمج
-            renderDashboard();
-        }
-
-        function getTaskBaseKey(title) {
-            let clean = title.replace(/[^\u0600-\u06FFa-zA-Z0-9\s]/g, '').trim();
-            let words = clean.split(/\s+/);
-            return words.slice(0, 2).join(" ");
-        }
-
-        function renderDashboard() {
-            const branchFilter = document.getElementById('branchFilter').value;
-            const roleFilter = document.getElementById('roleFilter').value;
-            
-            // عد غيابات فرع الهرم
-            const isF_Absent = document.getElementById('absentF').checked;
-            const isH_Absent = document.getElementById('absentH').checked ? 1 : 0;
-            const isJ_Absent = document.getElementById('absentJ').checked ? 1 : 0;
-            const totalAbsents = (isF_Absent ? 1 : 0) + isH_Absent + isJ_Absent;
-
-            const tableHeader = document.getElementById('tableHeader');
-            const tableBody = document.getElementById('tableBody');
-            
-            tableHeader.innerHTML = `
-                <th class="text-right">التصنيف</th>
-                <th class="text-right">بيان المهمة اليومية تفصيلياً (قابل للتعديل والكتابة)</th>
-                <th>الفرع</th>
-                <th>الموظف المكلف الفعلي</th>
-                <th>حالة التنفيذ</th>
-            `;
-
-            let processedTasks = [];
-            let seenTasks = {}; 
-
-            originalTasks.forEach(task => {
-                let currentOwner = task.role;
-                let isTransferred = false;
-                let transferType = '';
-
-                // سيناريوهات غياب فرع الهرم التكتيكية المحدثة:
-                if (task.branch === "الهرم") {
-                    // السيناريو الجديد: في حالة غياب 3 موظفين بالهرم (الكل غايب) 👈 تدمج وتتحول كلها لـ المشرف L (نفس سيناريو الدقي المقفل مالي وإداري)
-                    if (totalAbsents === 3) {
-                        if (task.role === 'F' || task.role === 'H' || task.role === 'J') {
-                            currentOwner = 'L';
-                            isTransferred = true;
-                            transferType = 'TO_L_3';
-                        }
-                    } 
-                    // السيناريو القديم: غياب موظفين اثنين 👈 ترحل مهام عيادة 1 وعيادة 2 للمشرف L
-                    else if (totalAbsents === 2) {
-                        if (task.role === 'H' || task.role === 'J') {
-                            currentOwner = 'L';
-                            isTransferred = true;
-                            transferType = 'TO_L';
-                        }
-                    } 
-                    // السيناريو القديم: غياب موظف واحد 👈 تدمج مهام عيادة 2 مع عيادة 1
-                    else if (totalAbsents === 1) {
-                        if (task.role === 'J') {
-                            currentOwner = 'H';
-                            isTransferred = true;
-                            transferType = 'TO_H';
-                        }
-                    }
-                }
-
-                const matchBranch = branchFilter === 'ALL' || task.branch === 'الكل' || task.branch === branchFilter;
-                const matchRole = roleFilter === 'ALL' || currentOwner === roleFilter;
-
-                if (matchBranch && matchRole) {
-                    let uniqueKey = `${currentOwner}_${task.section}_${task.title.trim()}`;
-
-                    if (!seenTasks[uniqueKey]) {
-                        seenTasks[uniqueKey] = true;
-                        processedTasks.push({
-                            ...task,
-                            currentOwner: currentOwner,
-                            isTransferred: isTransferred,
-                            transferType: transferType,
-                            baseKey: getTaskBaseKey(task.title)
-                        });
-                    } else {
-                        if (task.status) {
-                            const mainTask = processedTasks.find(t => `${t.currentOwner}_${t.section}_${t.title.trim()}` === uniqueKey);
-                            if (mainTask) mainTask.status = true;
-                        }
-                    }
-                }
-            });
-
-            // الفرز الصارم (بداية ← خلال ← نهاية) + تجميع المتشابه
-            const sectionOrder = [SEC_START, SEC_DURING, SEC_END];
-            processedTasks.sort((a, b) => {
-                let secDiff = sectionOrder.indexOf(a.section) - sectionOrder.indexOf(b.section);
-                if (secDiff !== 0) return secDiff;
-                return a.baseKey.localeCompare(b.baseKey, 'ar');
-            });
-
-            let bodyHTML = '';
-            let totalTasks = processedTasks.length;
-            let completedTasks = 0;
-            let pendingTasks = 0;
-
-            let sectionMetrics = { [SEC_START]: { t: 0, c: 0 }, [SEC_DURING]: { t: 0, c: 0 }, [SEC_END]: { t: 0, c: 0 } };
-
-            processedTasks.forEach(task => {
-                if (task.status) completedTasks++;
-                else pendingTasks++;
-
-                sectionMetrics[task.section].t++;
-                if (task.status) sectionMetrics[task.section].c++;
-
-                let rowClass = 'row-during';
-                if (task.section === SEC_START) rowClass = 'row-start';
-                else if (task.section === SEC_END) rowClass = 'row-end';
-
-                let ownerBadge = `<span class="badge">${roleLabels[task.currentOwner]}</span>`;
-                if (task.isTransferred) {
-                    if (task.transferType === 'TO_H') {
-                        ownerBadge = `<span class="badge badge-transfer">🔄 دمج: عيادة 1 يستلم شغل عيادة 2</span>`;
-                    } else if (task.transferType === 'TO_L') {
-                        ownerBadge = `<span class="badge badge-danger-transfer">⚠️ طوارئ [2 غياب]: المشرف يستلم</span>`;
-                    } else if (task.transferType === 'TO_L_3') {
-                        ownerBadge = `<span class="badge badge-danger-transfer">🚨 طوارئ الهرم [3 غياب]: سيناريو الدقي الشامل للمشرف</span>`;
-                    }
-                }
-
-                // إضافة حقل إدخال input قابل للتعديل والكتابة المباشرة للمهمة لضمان تعديلها من الشاشة فوراً
-                bodyHTML += `
-                    <tr class="${rowClass}">
-                        <td class="text-right font-bold whitespace-nowrap" style="color: #cbd5e1;">${task.section}</td>
-                        <td class="text-right">
-                            <input type="text" class="editable-task" value="${task.title}" onchange="updateTaskTitle(${task.id}, this.value)" title="اضغط هنا لتعديل نص المهمة">
-                        </td>
-                        <td><span class="badge badge-branch">${task.branch}</span></td>
-                        <td>${ownerBadge}</td>
-                        <td>
-                            <button class="btn ${task.status ? 'btn-success' : 'btn-danger'}" onclick="toggleStatus(${task.id})">
-                                ${task.status ? '✓ مكتملة' : '❌ متبقي'}
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            tableBody.innerHTML = bodyHTML || `<tr><td colspan="5" style="padding: 40px; color: #64748b; font-weight: bold; text-align: center;">لا توجد أي مهام مطابقة للفلتر الحالي أو شروط غياب الشفت.</td></tr>`;
-
-            // تحديث العدادات الرقمية
-            document.getElementById('overallKPI').innerText = totalTasks === 0 ? '0%' : Math.round((completedTasks / totalTasks) * 100) + '%';
-            document.getElementById('pendingKPI').innerText = pendingTasks;
-            document.getElementById('startKPI').innerText = sectionMetrics[SEC_START].t === 0 ? '0%' : Math.round((sectionMetrics[SEC_START].c / sectionMetrics[SEC_START].t) * 100) + '%';
-            document.getElementById('duringKPI').innerText = sectionMetrics[SEC_DURING].t === 0 ? '0%' : Math.round((sectionMetrics[SEC_DURING].c / sectionMetrics[SEC_DURING].t) * 100) + '%';
-            document.getElementById('endKPI').innerText = sectionMetrics[SEC_END].t === 0 ? '0%' : Math.round((sectionMetrics[SEC_END].c / sectionMetrics[SEC_END].t) * 100) + '%';
-        }
-
-        window.onload = function() { renderDashboard(); };
-    </script>
-</body>
-</html>
+            { id: 55, role: "DOKKI_STAFF", section: SEC_START, title: "مراجعة واتس اب و واتساب

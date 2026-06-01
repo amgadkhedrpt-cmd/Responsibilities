@@ -19,6 +19,12 @@
         select { width: 100%; padding: 12px; background-color: #0f172a; border: 1px solid #475569; border-radius: 12px; color: #f1f5f9; font-size: 14px; outline: none; cursor: pointer; }
         select:focus { border-color: #38bdf8; }
         
+        /* تصميم قسم تسجيل الغياب */
+        .absence-section { background-color: #1e293b; padding: 16px; border-radius: 16px; border: 1px solid #334155; display: flex; flex-wrap: wrap; gap: 24px; align-items: center; }
+        .absence-title { font-weight: bold; color: #f43f5e; font-size: 14px; }
+        .checkbox-group { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
+        .checkbox-group input { width: 18px; height: 18px; cursor: pointer; }
+
         .kpis-section { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
         @media (min-width: 768px) { .kpis-section { grid-template-columns: repeat(3, 1fr); } @media (min-width: 1024px) { .kpis-section { grid-template-columns: repeat(5, 1fr); } } }
         .kpi-card { padding: 16px; border-radius: 12px; text-align: center; border: 1px solid transparent; }
@@ -44,6 +50,8 @@
         
         .badge { background-color: #0f172a; color: #94a3b8; padding: 4px 8px; border-radius: 6px; border: 1px solid #334155; font-size: 11px; font-weight: 600; }
         .badge-branch { color: #22d3ee; border-color: rgba(34, 211, 238, 0.3); background-color: rgba(34, 211, 238, 0.05); }
+        .badge-transfer { color: #fbbf24; border-color: rgba(251, 191, 36, 0.3); background-color: rgba(251, 191, 36, 0.1); font-weight: bold; }
+        .badge-danger-transfer { color: #f43f5e; border-color: rgba(244, 63, 94, 0.3); background-color: rgba(244, 63, 94, 0.1); font-weight: bold; }
         
         .btn { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; border: none; cursor: pointer; transition: all 0.2s; min-width: 90px; }
         .btn-success { background-color: #059669; color: white; }
@@ -55,13 +63,11 @@
 
     <div class="max-w-7xl">
         
-        <!-- الهيدر -->
         <header>
             <h1>نظام المتابعة والتفتيش التفاعلي - BodyFix</h1>
-            <p>لوحة التحكم الشاملة لفرعي (الدقي والهرم) لمتابعة قوائم المهام المحددة لكل شفت ووحدة وظيفية بدقة</p>
+            <p>لوحة التحكم الشاملة لفرعي (الدقي والهرم) مع التوجيه الذكي للمهام المتبادلة في حالات الغياب الطارئة</p>
         </header>
 
-        <!-- لوحة الفلاتر المزدوجة والمستقلة -->
         <section class="filters-section">
             <div class="filter-group">
                 <label>📍 عرض فرع محدد أو كل الفروع:</label>
@@ -76,15 +82,24 @@
                 <select id="roleFilter" onchange="renderDashboard()">
                     <option value="ALL">📊 شاشة الإدارة والمشرف الكاملة (كل الموظفين)</option>
                     <option value="F">📋 سكرتارية الشيفت الصباحي (الفرعين)</option>
-                    <option value="H">📋 سكرتارية عيادة واحد (1)</option>
+                    <option value="H">📋 سكرتارية عيادة واحد (1) - تشمل البديل</option>
                     <option value="J">📋 سكرتارية عيادة اثنين (2)</option>
-                    <option value="L">📋 مشرف السكرتارية (الفرعين)</option>
+                    <option value="L">📋 مشرف السكرتارية (الفرعين) - تشمل طوارئ الـ 2 غياب</option>
                     <option value="DOKKI_STAFF">📋 سكرتارية الدقي (الشفت الكامل للفرع)</option>
                 </select>
             </div>
         </section>
 
-        <!-- كروت الإحصائيات اللحظية المحدثة ذاتياً -->
+        <section class="absence-section">
+            <div class="absence-title">⚠️ إدارة الطوارئ والغياب اليومي للفروع:</div>
+            <label class="checkbox-group">
+                <input type="checkbox" id="absentH" onchange="renderDashboard()"> غياب موظف عيادة 1 (H) 
+            </label>
+            <label class="checkbox-group">
+                <input type="checkbox" id="absentJ" onchange="renderDashboard()"> غياب موظف عيادة 2 (J)
+            </label>
+        </section>
+
         <section class="kpis-section">
             <div class="kpi-card bg-overall">
                 <p class="kpi-title">نسبة الإنجاز (للفلتر الحالي)</p>
@@ -108,19 +123,16 @@
             </div>
         </section>
 
-        <!-- جدول المهام الكامل وحصر متطلباتك بالملي -->
         <section class="table-section">
             <h2>📋 حصر المهام وقائمة الـ Checklist اليومية المتكاملة</h2>
             <div class="table-container">
                 <table id="tasksTable">
                     <thead>
                         <tr id="tableHeader">
-                            <!-- يتم البناء جافا سكريبت تفاعلياً -->
-                        </tr>
+                            </tr>
                     </thead>
                     <tbody id="tableBody">
-                        <!-- صفوف المهام تولد تلقائياً -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </section>
@@ -128,7 +140,7 @@
     </div>
 
     <script>
-        // قاعدة البيانات الشاملة لجميع المهام المدرجة في طلبك بدقة
+        // قاعدة البيانات الكامله للمهام
         const tasks = [
             // ==================== سكرتارية الشيفت الصباحي ====================
             { role: "F", section: "مهام بداية الشفت", title: "مراجعة مهام اليوم والأيام السابقة غير المنجزة", branch: "الكل", status: false },
@@ -136,12 +148,12 @@
             { role: "F", section: "مهام بداية الشفت", title: "مراجعة واتس اب و واتساب بوت", branch: "الكل", status: false },
             { role: "F", section: "خلال الشفت", title: "مراجعة المكالمات الفائتة على جميع الموبايلات", branch: "الكل", status: false },
             { role: "F", section: "خلال الشفت", title: "تأكيد المواعيد غير المؤكدة لليوم", branch: "الكل", status: false },
-            { role: "F", section: "خلال الشفت", title: "tسكين المواعيد غير المسكنة لليوم من قائمة الانتظار والـ follow up", branch: "الكل", status: false },
+            { role: "F", section: "خلال الشفت", title: "تسكين المواعيد غير المسكنة لليوم من قائمة الانتظار والـ follow up", branch: "الكل", status: false },
             { role: "F", section: "خلال الشفت", title: "مراجعة شيت التثبيتات للمرضى الذين ينتهي تثبيتهم اليوم", branch: "الكل", status: false },
             { role: "F", section: "خلال الشفت", title: "حجز المواعيد غير المحجوزة للمرضى بجدول اليوم وتكرارها", branch: "الكل", status: false },
             { role: "F", section: "خلال الشفت", title: "تأكيد المواعيد لليوم التالي", branch: "الكل", status: false },
             { role: "F", section: "خلال الشفت", title: "تسكين المواعيد غير المسكنة للغد من قائمة الانتظار والـ follow up لليوم التالي", branch: "الكل", status: false },
-            { role: "F", section: "خلال الشفت", title: "متابعة الوصول للمرحى", branch: "الكل", status: false },
+            { role: "F", section: "خلال الشفت", title: "متابعة الوصول للمرضى", branch: "الكل", status: false },
             { role: "F", section: "خلال الشفت", title: "متابعة واتس اب", branch: "الكل", status: false },
             { role: "F", section: "خلال الشفت", title: "متابعة موبايل", branch: "الكل", status: false },
             { role: "F", section: "مهام نهاية الشفت", title: "مراجعة المهام الإجمالية المقفلة", branch: "الكل", status: false },
@@ -198,7 +210,7 @@
             { role: "DOKKI_STAFF", section: "خلال الشفت", title: "تأكيد المواعيد غير المؤكده لليوم لفرع الدقي", branch: "الدقي", status: false },
             { role: "DOKKI_STAFF", section: "خلال الشفت", title: "تسكين المواعيد غير المسكنه لليوم من قائمة الانتظار و ال follow up فرع الدقي", branch: "الدقي", status: false },
             { role: "DOKKI_STAFF", section: "خلال الشفت", title: "مراجعة شيت التثبيتات للمرضي ال تثبيتهم انتهي اليوم بالدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "خلال الشفت", title: "حجز المواعيد غير المحجوزه للمرضي بجدول اليوم و تكرارها بالدقي", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "خلال الشفت", title: "حجز المواعيد غير المحجوزة للمرضى بجدول اليوم و تكرارها بالدقي", branch: "الدقي", status: false },
             { role: "DOKKI_STAFF", section: "خلال الشفت", title: "تأكيد المواعيد لليوم التالي فرع الدقي", branch: "الدقي", status: false },
             { role: "DOKKI_STAFF", section: "خلال الشفت", title: "تسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي بالدقي", branch: "الدقي", status: false },
             { role: "DOKKI_STAFF", section: "خلال الشفت", title: "متابعة الوصول للمرضي وصالة العيادة بالدقي", branch: "الدقي", status: false },
@@ -217,13 +229,12 @@
             { role: "DOKKI_STAFF", section: "مهام نهاية الشفت", title: "تقفيل الحسابات اليومية وخزينة الدقي", branch: "الدقي", status: false }
         ];
 
-        // مسميات الأفراد للأعمدة التفاعلية
         const roleLabels = { 
             'F': 'الصباحي (F)', 
             'H': 'عيادة 1 (H)', 
             'J': 'عيادة 2 (J)', 
             'L': 'المشرف (L)', 
-            'DOKKI_STAFF': 'سكرتارية الدقي' 
+            'DOKKI_STAFF': 'سكرتارية الدقي'
         };
 
         function toggleStatus(globalIndex) {
@@ -235,15 +246,21 @@
             const branchFilter = document.getElementById('branchFilter').value;
             const roleFilter = document.getElementById('roleFilter').value;
             
+            // قراءة لوحة غيابات الموظفين الفورية
+            const isH_Absent = document.getElementById('absentH').checked;
+            const isJ_Absent = document.getElementById('absentJ').checked;
+            
+            // حساب إجمالي عدد الأفراد الغائبين
+            const totalAbsents = (isH_Absent ? 1 : 0) + (isJ_Absent ? 1 : 0);
+
             const tableHeader = document.getElementById('tableHeader');
             const tableBody = document.getElementById('tableBody');
             
-            // بناء الهيدر الرئيسي
             tableHeader.innerHTML = `
                 <th class="text-right">التصنيف</th>
                 <th class="text-right">بيان المهمة اليومية تفصيلياً</th>
                 <th>الفرع</th>
-                <th>الموظف المكلف</th>
+                <th>الموظف المكلف الفعلي</th>
                 <th>حالة التنفيذ</th>
             `;
 
@@ -261,9 +278,38 @@
             let hasData = false;
 
             tasks.forEach((task, index) => {
-                // تصفية الفلاتر المزدوجة والمستقلة بالفرع والموظف معاً
+                // ---- تطبيق منطق سلسلة الطوارئ ونقل المسؤوليات الجديد بالملي ----
+                let currentOwner = task.role;
+                let isTransferred = false;
+                let transferType = ''; // 'TO_H' أو 'TO_L' تمييزاً للألوان
+
+                // السيناريو A: غياب 2 موظفين مع بعض (عيادة 1 + عيادة 2) 👈 الشغل بالكامل يروح لـ "المشرف L"
+                if (totalAbsents === 2) {
+                    if (task.role === 'H' || task.role === 'J') {
+                        currentOwner = 'L';
+                        isTransferred = true;
+                        transferType = 'TO_L';
+                    }
+                } 
+                // السيناريو B: غياب موظف واحد فقط
+                else if (totalAbsents === 1) {
+                    // لو عيادة 2 هو اللي غايب 👈 مهامه تروح لـ "عيادة 1 H" يشيلها مع شغله
+                    if (task.role === 'J' && isJ_Absent) {
+                        currentOwner = 'H';
+                        isTransferred = true;
+                        transferType = 'TO_H';
+                    }
+                    // لو عيادة 1 هو اللي غايب 👈 مهامه يرجع يراجعها المشرف أو التيم المتاح حسب دورة العمل
+                    if (task.role === 'H' && isH_Absent) {
+                        currentOwner = 'L'; // خط الدفاع الإداري
+                        isTransferred = true;
+                        transferType = 'TO_L';
+                    }
+                }
+
+                // تصفية الفلاتر بناءً على الموظف الفعلي المكلف بالمهمة "حاليًا" في الشفت
                 const matchBranch = branchFilter === 'ALL' || task.branch === 'الكل' || task.branch === branchFilter;
-                const matchRole = roleFilter === 'ALL' || task.role === roleFilter;
+                const matchRole = roleFilter === 'ALL' || currentOwner === roleFilter;
 
                 if (matchBranch && matchRole) {
                     hasData = true;
@@ -271,25 +317,35 @@
                     if (task.status) completedTasks++;
                     else pendingTasks++;
 
-                    // حساب نسب الأقسام
                     let secKey = task.section;
                     if (sectionMetrics[secKey]) {
                         sectionMetrics[secKey].total++;
                         if (task.status) sectionMetrics[secKey].comp++;
                     }
 
-                    // تلوين الصفوف حسب الشفت
                     let rowClass = '';
                     if (task.section.includes("بداية")) rowClass = 'row-start';
                     else if (task.section.includes("خلال")) rowClass = 'row-during';
                     else if (task.section.includes("نهاية")) rowClass = 'row-end';
+
+                    // تشكيل البادج الوظيفي الذكي مع توضيح التحويل
+                    let ownerBadge = '';
+                    if (isTransferred) {
+                        if (transferType === 'TO_H') {
+                            ownerBadge = `<span class="badge badge-transfer">🔄 تحويل لـ عيادة 1 (بديل)</span>`;
+                        } else if (transferType === 'TO_L') {
+                            ownerBadge = `<span class="badge badge-danger-transfer">⚠️ طوارئ: المشرف (L) يستلم</span>`;
+                        }
+                    } else {
+                        ownerBadge = `<span class="badge">${roleLabels[currentOwner]}</span>`;
+                    }
 
                     bodyHTML += `
                         <tr class="${rowClass}">
                             <td class="text-right font-bold whitespace-nowrap" style="color: #cbd5e1;">${task.section}</td>
                             <td class="text-right font-medium text-slate-100" style="line-height: 1.6; max-w-lg;">${task.title}</td>
                             <td><span class="badge badge-branch">${task.branch}</span></td>
-                            <td><span class="badge">${roleLabels[task.role]}</span></td>
+                            <td>${ownerBadge}</td>
                             <td>
                                 <button class="btn ${task.status ? 'btn-success' : 'btn-danger'}" onclick="toggleStatus(${index})">
                                     ${task.status ? '✓ مكتملة' : '❌ متبقي'}
@@ -301,11 +357,11 @@
             });
 
             if (!hasData) {
-                bodyHTML = `<tr><td colspan="5" style="padding: 40px; color: #64748b; font-weight: bold; text-align: center;">لا توجد أي مهام مطابقة للفلتر الحالي.</td></tr>`;
+                bodyHTML = `<tr><td colspan="5" style="padding: 40px; color: #64748b; font-weight: bold; text-align: center;">لا توجد أي مهام مطابقة للفلتر الحالي أو شروط غياب الشفت.</td></tr>`;
             }
             tableBody.innerHTML = bodyHTML;
 
-            // تحديث كروت الـ KPIs رقمياً بالمعادلات اللحظية الفورية
+            // تحديث العدادات اللحظية
             const overallPct = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
             document.getElementById('overallKPI').innerText = overallPct + '%';
             document.getElementById('pendingKPI').innerText = pendingTasks;

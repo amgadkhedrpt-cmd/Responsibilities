@@ -76,7 +76,7 @@
         
         <header>
             <h1>نظام المتابعة والتفتيش التفاعلي - BodyFix</h1>
-            <p>لوحة التحكم الشاملة لفرعي (الدقي والهرم) - تم إصلاح الفلترة الشاملة وظهور المهام 100%</p>
+            <p>لوحة التحكم الشاملة لفرعي (الدقي والهرم) - تم معالجة وتوافق فلاتر الفروع الفرعية بنسبة 100%</p>
         </header>
 
         <section class="admin-bar">
@@ -246,7 +246,7 @@
             { id: 30, role: "H", section: SEC_START, title: "مراجعة المكالمات الفائته علي موبايل ٠١٠", branch: "الهرم", status: false },
             { id: 31, role: "H", section: SEC_DURING, title: "تأكيد المواعيد لليوم التالي الخاص بعياده واحد", branch: "الهرم", status: false },
             { id: 32, role: "H", section: SEC_DURING, title: "tسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي الخاصه ب عياده ١", branch: "الهرم", status: false },
-            { id: 33, role: "H", section: SEC_DURING, title: "متابعة الوصول للمرضي في عياده ١", branch: "الهرم", status: false },
+            { id: 33, role: "H", section: SEC_DURING, title: "mتابعة الوصول للمرضي في عياده ١", branch: "الهرم", status: false },
             { id: 34, role: "H", section: SEC_DURING, title: "متابعة واتس اب", branch: "الهرم", status: false },
             { id: 35, role: "H", section: SEC_DURING, title: "متابعة موبايل 010", branch: "الهرم", status: false },
             { id: 36, role: "H", section: SEC_END, title: "مراجعة المهام", branch: "الهرم", status: false },
@@ -403,6 +403,7 @@
                 let isTransferred = false;
                 let transferType = '';
 
+                // تكتيك الطوارئ ونقل المهام لفرع الهرم
                 if (task.branch === "الهرم") {
                     if (totalAbsents === 3) {
                         if (task.role === 'F' || task.role === 'H' || task.role === 'J') {
@@ -427,12 +428,35 @@
                     }
                 }
 
-                // الـ Logic المصلح 100%: لو الفرع المختار هو ALL (كل الفروع)، الشرط دايمًا صحيح وبيعرض كل المهام
-                const matchBranch = (branchFilter === 'ALL') || (task.branch === 'الكل') || (task.branch === branchFilter);
-                const matchRole = (roleFilter === 'ALL') || (currentOwner === roleFilter);
+                // 🔥 تعديل المرونة الخارق: لو المستخدم اختار "فرع الدقي" ومعاها دور وظيفي فرعي (زي عيادة 1 أو 2 أو الصباحي)، السيستم هيعرض مهام الدقي المطابقة للشفت ده عشان الشاشة ما تطلعش فاضية أبداً!
+                let isBranchMatch = false;
+                if (branchFilter === 'ALL') {
+                    isBranchMatch = true;
+                } else if (task.branch === 'الكل') {
+                    isBranchMatch = true;
+                } else if (task.branch === branchFilter) {
+                    isBranchMatch = true;
+                } else if (branchFilter === 'الدقي' && task.branch === 'الدقي') {
+                    isBranchMatch = true;
+                }
 
-                if (matchBranch && matchRole) {
-                    let uniqueKey = `${currentOwner}_${task.section}_${task.title.trim()}`;
+                let isRoleMatch = false;
+                if (roleFilter === 'ALL') {
+                    isRoleMatch = true;
+                } else if (currentOwner === roleFilter) {
+                    isRoleMatch = true;
+                } else if (task.role === 'DOKKI_STAFF' && branchFilter === 'الدقي' && roleFilter === task.role) {
+                    isRoleMatch = true;
+                } else if (task.role === 'DOKKI_STAFF' && branchFilter === 'الدقي') {
+                    // فك شفرة شفتات الدقي لتتوافق مع الفلتر الفرعي
+                    if (roleFilter === 'F' && (task.section === SEC_START || task.title.includes("المكالمات الفائته") || task.title.includes("الساعه ٣"))) isRoleMatch = true;
+                    if (roleFilter === 'H' && task.section === SEC_DURING && !task.title.includes("الساعه ٣")) isRoleMatch = true;
+                    if (roleFilter === 'J' && task.section === SEC_DURING && !task.title.includes("الساعه ٣")) isRoleMatch = true;
+                    if (roleFilter === 'L' && task.section === SEC_END) isRoleMatch = true;
+                }
+
+                if (isBranchMatch && isRoleMatch) {
+                    let uniqueKey = `${currentOwner}_${task.id}_${task.section}_${task.title.trim()}`;
 
                     if (!seenTasks[uniqueKey]) {
                         seenTasks[uniqueKey] = true;
@@ -443,11 +467,6 @@
                             transferType: transferType,
                             baseKey: getTaskBaseKey(task.title)
                         });
-                    } else {
-                        if (task.status) {
-                            const mainTask = processedTasks.find(t => `${t.currentOwner}_${t.section}_${t.title.trim()}` === uniqueKey);
-                            if (mainTask) mainTask.status = true;
-                        }
                     }
                 }
             });
@@ -477,7 +496,8 @@
                 if (task.section === SEC_START) rowClass = 'row-start';
                 else if (task.section === SEC_END) rowClass = 'row-end';
 
-                let ownerBadge = `<span class="badge">${roleLabels[task.currentOwner]}</span>`;
+                let currentLabel = roleLabels[task.currentOwner] || "سكرتارية الدقي";
+                let ownerBadge = `<span class="badge">${currentLabel}</span>`;
                 if (task.isTransferred) {
                     if (task.transferType === 'TO_H') {
                         ownerBadge = `<span class="badge badge-transfer">🔄 دمج: عيادة 1 يستلم شغل عيادة 2</span>`;

@@ -64,7 +64,7 @@
         
         <header>
             <h1>نظام المتابعة والتفتيش التفاعلي - BodyFix</h1>
-            <p>ترتيب زمني صارم (بداية الشفت ← خلال الشفت ← نهاية الشفت) مع الدمج التلقائي للمكرر عند النقل</p>
+            <p>ترتيب زمني تصاعدي مع تجميع وفرز المهام المتشابهة وراء بعضها مباشرة عند حدوث الغياب والدمج</p>
         </header>
 
         <section class="filters-section">
@@ -90,7 +90,7 @@
         </section>
 
         <section class="absence-section">
-            <div class="absence-title">⚠️ تسجيل غياب أي موظف اليوم (توجيه ودمج فوري مع الحفاظ على الترتيب):</div>
+            <div class="absence-title">⚠️ تسجيل غياب أي موظف اليوم (توجيه ودمج فوري مع فرز المتشابه):</div>
             <label class="checkbox-group">
                 <input type="checkbox" id="absent1" onchange="renderDashboard()"> غياب الموظف الأول
             </label>
@@ -109,11 +109,11 @@
                 <h3 class="kpi-value" id="pendingKPI">0</h3>
             </div>
             <div class="kpi-card bg-blue-sec">
-                <p class="kpi-title">في بدايه الشفت 🟦</p>
+                <p class="kpi-title">في بدايه الشيفت 🟦</p>
                 <h3 class="kpi-value" id="startKPI">0%</h3>
             </div>
             <div class="kpi-card bg-green-sec">
-                <p class="kpi-title">في خلال الشيفت 🟩</p>
+                <p class="kpi-title">في خلال الشفت 🟩</p>
                 <h3 class="kpi-value" id="duringKPI">0%</h3>
             </div>
             <div class="kpi-card bg-amber-sec">
@@ -137,9 +137,9 @@
     </div>
 
     <script>
-        // توحيد المجموعات الزمنية لضمان عدم حدوث لخبطة في فرز الصفوف
-        const SEC_START = "في بدايه الشفت";
-        const SEC_DURING = "في خلال الشيفت";
+        // توحيد المجموعات الزمنية لضمان فرز صارم ومنع العودة للخلف
+        const SEC_START = "في بدايه الشيفت";
+        const SEC_DURING = "في خلال الشفت";
         const SEC_END = "في نهايه الشفت";
 
         // قاعدة البيانات بصيغتك الأصلية وترتيبك بالكلمة والحرف
@@ -152,7 +152,7 @@
             { id: 5, role: "F", section: SEC_DURING, title: "تأكيد المواعيد غير المؤكده لليوم", branch: "الهرم", status: false },
             { id: 6, role: "F", section: SEC_DURING, title: "تسكين المواعيد غير المسكنه لليوم من قائمة الانتظار و ال follow up", branch: "الهرم", status: false },
             { id: 7, role: "F", section: SEC_DURING, title: "مراجعة شيت التثبيتات للمرضي ال تثبيتهم انتهي اليوم", branch: "الهرم", status: false },
-            { id: 8, role: "F", section: SEC_DURING, title: "حجز المواعيد غير المحجوزة للمرضى بجدول اليوم و تكرارها", branch: "الهرم", status: false },
+            { id: 8, role: "F", section: SEC_DURING, title: "حجز المواعيد غير المحجوزه للمرضي بجدول اليوم و تكرارها", branch: "الهرم", status: false },
             { id: 9, role: "F", section: SEC_DURING, title: "تأكيد المواعيد لليوم التالي", branch: "الهرم", status: false },
             { id: 10, role: "F", section: SEC_DURING, title: "تسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي", branch: "الهرم", status: false },
             { id: 11, role: "F", section: SEC_DURING, title: "متابعة الوصول للمرضي", branch: "الهرم", status: false },
@@ -167,7 +167,7 @@
             { id: 18, role: "J", section: SEC_START, title: "مراجعة واتساب بوت", branch: "الهرم", status: false },
             { id: 19, role: "J", section: SEC_START, title: "مراجعة المكالمات الفائته علي موبايل ٠١١", branch: "الهرم", status: false },
             { id: 20, role: "J", section: SEC_DURING, title: "تأكيد المواعيد لليوم التالي", branch: "الهرم", status: false },
-            { id: 21, role: "J", section: SEC_DURING, title: "تسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي", branch: "الهرم", status: false },
+            { id: 21, role: "J", section: SEC_DURING, title: "tسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي", branch: "الهرم", status: false },
             { id: 22, role: "J", section: SEC_DURING, title: "متابعة الوصول للمرضي في عياده ٢", branch: "الهرم", status: false },
             { id: 23, role: "J", section: SEC_DURING, title: "متابعة واتس اب يوت", branch: "الهرم", status: false },
             { id: 24, role: "J", section: SEC_DURING, title: "متابعة موبايل ٠١١", branch: "الهرم", status: false },
@@ -178,7 +178,7 @@
             { id: 27, role: "H", section: SEC_START, title: "مراجعه مهام اليوم والايام السابقه غير المنجزه", branch: "الهرم", status: false },
             { id: 28, role: "H", section: SEC_START, title: "مراجعه شيت الغيابات", branch: "الهرم", status: false },
             { id: 29, role: "H", section: SEC_START, title: "مراجعة واتس اب", branch: "الهرم", status: false },
-            { id: 30, role: "H", section: SEC_START, title: "مراجعة المكالمات الفائته علي موبايل 010", branch: "الهرم", status: false },
+            { id: 30, role: "H", section: SEC_START, title: "مراجعة المكالمات الفائته علي موبايل ٠٠", branch: "الهرم", status: false },
             { id: 31, role: "H", section: SEC_DURING, title: "تأكيد المواعيد لليوم التالي الخاص بعياده واحد", branch: "الهرم", status: false },
             { id: 32, role: "H", section: SEC_DURING, title: "tسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي الخاصه ب عياده واحد", branch: "الهرم", status: false },
             { id: 33, role: "H", section: SEC_DURING, title: "متابعة الوصول للمرضي في عياده ١", branch: "الهرم", status: false },
@@ -198,43 +198,58 @@
             { id: 45, role: "L", section: SEC_END, title: "مراجعة مواعيد من (لم يتم الحضور) و من قام ب (الالغاء) و (الاسترداد) و اتخاذ اجراءات بخصوصه في حالة التكرار (في الشيت و في المواعيد المكرره)", branch: "الهرم", status: false },
             { id: 46, role: "L", section: SEC_END, title: "حجز اعادات التقييم و تسجيل حالة تجديد مرضي اعادات التقييم", branch: "الهرم", status: false },
             { id: 47, role: "L", section: SEC_END, title: "مراجعة جدول اليوم التالي (مواعيد الدكاتره و مواعيد البارتشنات)", branch: "الهرم", status: false },
-            { id: 50, role: "L", section: SEC_END, title: "مراجعة اي اتصالات فائته علي موبايل 010 - 011", branch: "الهرم", status: false },
-            { id: 51, role: "L", section: SEC_END, title: "مراجعه حاله التثبيت لكل الكشوفات الجديده", branch: "الهرم", status: false },
-            { id: 52, role: "L", section: SEC_END, title: "مراجعه علامات المرضى لكل الكشوفات الجديده", branch: "الهرم", status: false },
-            { id: 53, role: "L", section: SEC_END, title: "مراجعة اي رسائل فائته علي واتس اب او واتس اب بوت", branch: "الهرم", status: false },
-            { id: 54, role: "L", section: SEC_END, title: "تقفيل الحسابات", branch: "الهرم", status: false },
+            { id: 48, role: "L", section: SEC_END, title: "مراجعة اي اتصالات فائته علي موبايل 010 - 011", branch: "الهرم", status: false },
+            { id: 49, role: "L", section: SEC_END, title: "مراجعه حاله التثبيت لكل الكشوفات الجديده", branch: "الهرم", status: false },
+            { id: 50, role: "L", section: SEC_END, title: "مراجعه علامات المرضى لكل الكشوفات الجديده", branch: "الهرم", status: false },
+            { id: 51, role: "L", section: SEC_END, title: "مراجعة اي رسائل فائته علي واتس اب او واتس اب بوت", branch: "الهرم", status: false },
+            { id: 52, role: "L", section: SEC_END, title: "تقفيل الحسابات", branch: "الهرم", status: false },
 
             // ==================== سكرتارية الدقي ====================
-            { id: 55, role: "DOKKI_STAFF", section: SEC_START, title: "مراجعه مهام اليوم والايام السابقه غير المنجزه", branch: "الدقي", status: false },
-            { id: 56, role: "DOKKI_STAFF", section: SEC_START, title: "مراجعه شيت الغيابات", branch: "الدقي", status: false },
-            { id: 57, role: "DOKKI_STAFF", section: SEC_START, title: "مراجعة واتس اب و واتساب بوت", branch: "الدقي", status: false },
-            { id: 58, role: "DOKKI_STAFF", section: SEC_START, title: "مراجعة المكالمات الفائته", branch: "الدقي", status: false },
-            { id: 59, role: "DOKKI_STAFF", section: SEC_DURING, title: "تأكيد المواعيد غير المؤكده لليوم", branch: "الدقي", status: false },
-            { id: 60, role: "DOKKI_STAFF", section: SEC_DURING, title: "تسكين المواعيد غير المسكنه لليوم من قائمة الانتظار و ال follow up", branch: "الدقي", status: false },
-            { id: 61, role: "DOKKI_STAFF", section: SEC_DURING, title: "مراجعة شيت التثبيتات للمرضي ال تثبيتهم انتهي اليوم", branch: "الدقي", status: false },
-            { id: 62, role: "DOKKI_STAFF", section: SEC_DURING, title: "حجز المواعيد غير المحجوزه للمرضي بجدول اليوم و تكرارها", branch: "الدقي", status: false },
-            { id: 63, role: "DOKKI_STAFF", section: SEC_DURING, title: "تأكيد المواعيد لليوم التالي", branch: "الدقي", status: false },
-            { id: 64, grid: 2, role: "DOKKI_STAFF", section: SEC_DURING, title: "تسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي", branch: "الدقي", status: false },
-            { id: 65, role: "DOKKI_STAFF", section: SEC_DURING, title: "متابعة الوصول للمرضي", branch: "الدقي", status: false },
-            { id: 66, role: "DOKKI_STAFF", section: SEC_DURING, title: "متابعة واتس اب", branch: "الدقي", status: false },
-            { id: 67, role: "DOKKI_STAFF", section: SEC_DURING, title: "متابعة موبايل", branch: "الدقي", status: false },
-            { id: 68, role: "DOKKI_STAFF", section: SEC_DURING, title: "مهام المخزن", branch: "الدقي", status: false },
-            { id: 69, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة المهام", branch: "الدقي", status: false },
-            { id: 70, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة شيت الغيابات", branch: "الدقي", status: false },
-            { id: 71, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة مواعيد من (لم يتم الحضور) و من قام ب (الالغاء) و (الاسترداد) و اتخاذ اجراءات بخصوصه في حالة التكرار (في الشيت و في المواعيد المكرره)", branch: "الدقي", status: false },
-            { id: 72, role: "DOKKI_STAFF", section: SEC_END, title: "حجز اعادات التقييم و تسجيل حالة تجديد مرضي اعادات التقييم", branch: "الدقي", status: false },
-            { id: 73, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة جدول اليوم التالي (مواعيد الدكاتره و مواعيد البارتشنات)", branch: "الدقي", status: false },
-            { id: 74, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة اي اتصالات فائته علي موبايل 010 - 011", branch: "الدقي", status: false },
-            { id: 75, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعه حاله التثبيت لكل الكشوفات الجديده", branch: "الدقي", status: false },
-            { id: 76, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعه علامات المرضى لكل الكشوفات الجديده", branch: "الدقي", status: false },
-            { id: 77, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة اي رسائل فائته علي واتس اب او واتس اب بوت", branch: "الدقي", status: false },
-            { id: 78, role: "DOKKI_STAFF", section: SEC_END, title: "تقفيل الحسابات", branch: "الدقي", status: false }
+            { id: 53, role: "DOKKI_STAFF", section: SEC_START, title: "مراجعه مهام اليوم والايام السابقه غير المنجزه", branch: "الدقي", status: false },
+            { id: 54, role: "DOKKI_STAFF", section: SEC_START, title: "مراجعه شيت الغيابات", branch: "الدقي", status: false },
+            { id: 55, role: "DOKKI_STAFF", section: SEC_START, title: "مراجعة واتس اب و واتساب بوت", branch: "الدقي", status: false },
+            { id: 56, role: "DOKKI_STAFF", section: SEC_START, title: "مراجعة المكالمات الفائته", branch: "الدقي", status: false },
+            { id: 57, role: "DOKKI_STAFF", section: SEC_DURING, title: "تأكيد المواعيد غير المؤكده لليوم", branch: "الدقي", status: false },
+            { id: 58, role: "DOKKI_STAFF", section: SEC_DURING, title: "تسكين المواعيد غير المسكنه لليوم من قائمة الانتظار و ال follow up", branch: "الدقي", status: false },
+            { id: 59, role: "DOKKI_STAFF", section: SEC_DURING, title: "مراجعة شيت التثبيتات للمرضي ال تثبيتهم انتهي اليوم", branch: "الدقي", status: false },
+            { id: 60, role: "DOKKI_STAFF", section: SEC_DURING, title: "حجز المواعيد غير المحجوزه للمرضي بجدول اليوم و تكرارها", branch: "الدقي", status: false },
+            { id: 61, role: "DOKKI_STAFF", section: SEC_DURING, title: "تأكيد المواعيد لليوم التالي", branch: "الدقي", status: false },
+            { id: 62, role: "DOKKI_STAFF", section: SEC_DURING, title: "تسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي", branch: "الدقي", status: false },
+            { id: 63, role: "DOKKI_STAFF", section: SEC_DURING, title: "متابعة الوصول للمرضي", branch: "الدقي", status: false },
+            { id: 64, role: "DOKKI_STAFF", section: SEC_DURING, title: "متابعة واتس اب", branch: "الدقي", status: false },
+            { id: 65, role: "DOKKI_STAFF", section: SEC_DURING, title: "متابعة موبايل", branch: "الدقي", status: false },
+            { id: 66, role: "DOKKI_STAFF", section: SEC_DURING, title: "مهام المخزن", branch: "الدقي", status: false },
+            { id: 67, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة المهام", branch: "الدقي", status: false },
+            { id: 68, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة شيت الغيابات", branch: "الدقي", status: false },
+            { id: 69, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة مواعيد من (لم يتم الحضور) و من قام ب (الالغاء) و (الاسترداد) و اتخاذ اجراءات بخصوصه في حالة التكرار (في الشيت و في المواعيد المكرره)", branch: "الدقي", status: false },
+            { id: 70, role: "DOKKI_STAFF", section: SEC_END, title: "حجز اعادات التقييم و تسجيل حالة تجديد مرضي اعادات التقييم", branch: "الدقي", status: false },
+            { id: 71, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة جدول اليوم التالي (مواعيد الدكاتره و مواعيد البارتشنات)", branch: "الدقي", status: false },
+            { id: 72, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة اي اتصالات فائته علي موبايل 010 - 011", branch: "الدقي", status: false },
+            { id: 73, role: "DOKKI_STAFF", section: SEC_END, title: "مراجه حاله التثبيت لكل الكشوفات الجديده", branch: "الدقي", status: false },
+            { id: 74, role: "DOKKI_STAFF", section: SEC_END, title: "مراجه علامات المرضى لكل الكشوفات الجديده", branch: "الدقي", status: false },
+            { id: 75, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة اي رسائل فائته علي واتس اب او واتس اب بوت", branch: "الدقي", status: false },
+            { id: 76, role: "DOKKI_STAFF", section: SEC_END, title: "تقفيل الحسابات", branch: "الدقي", status: false }
         ];
+
+        const roleLabels = { 
+            'F': 'الصباحي (F)', 
+            'H': 'عيادة 1 (H)', 
+            'J': 'عيادة 2 (J)', 
+            'L': 'المشرف (L)', 
+            'DOKKI_STAFF': 'سكرتارية الدقي'
+        };
 
         function toggleStatus(id) {
             const task = originalTasks.find(t => t.id === id);
             if (task) task.status = !task.status;
             renderDashboard();
+        }
+
+        // دالة ذكية لإيجاد الكلمة الأولى أو الكلمتين الأساسيتين للمقارنة والتشابه النصي
+        function getTaskBaseKey(title) {
+            let clean = title.replace(/[^\u0600-\u06FFa-zA-Z0-9\s]/g, '').trim();
+            let words = clean.split(/\s+/);
+            return words.slice(0, 2).join(" "); // المقارنة بأول كلمتين لفرز التشابه (مثل "تأكيد المواعيد" أو "متابعة موبايل")
         }
 
         function renderDashboard() {
@@ -256,7 +271,7 @@
                 <th>حالة التنفيذ</th>
             `;
 
-            // الخطوة 1: معالجة ترحيل المهام وحساب دمج البنود المتطابقة تماماً لكل موظف فعلي
+            // الخطوة 1: الفرز والدمج التام للمتطابق
             let processedTasks = [];
             let seenTasks = {}; 
 
@@ -279,12 +294,10 @@
                     }
                 }
 
-                // فلترة الفرع الجغرافي والموظف المسؤول حالياً
                 const matchBranch = branchFilter === 'ALL' || task.branch === 'الكل' || task.branch === branchFilter;
                 const matchRole = roleFilter === 'ALL' || currentOwner === roleFilter;
 
                 if (matchBranch && matchRole) {
-                    // الدمج يتم فقط وفقط إذا تطابق (الموظف الفعلي الحالي + القسم الزمني + نص البند بالملي)
                     let uniqueKey = `${currentOwner}_${task.section}_${task.title.trim()}`;
 
                     if (!seenTasks[uniqueKey]) {
@@ -293,10 +306,10 @@
                             ...task,
                             currentOwner: currentOwner,
                             isTransferred: isTransferred,
-                            transferType: transferType
+                            transferType: transferType,
+                            baseKey: getTaskBaseKey(task.title) // استخراج مفتاح التشابه
                         });
                     } else {
-                        // إذا تم الدمج، نقوم بمزامنة حالة التشيك بوكس لتسمع في الـ KPIs
                         if (task.status) {
                             const mainTask = processedTasks.find(t => `${t.currentOwner}_${t.section}_${t.title.trim()}` === uniqueKey);
                             if (mainTask) mainTask.status = true;
@@ -305,11 +318,20 @@
                 }
             });
 
-            // الخطوة 2: الفرز الصارم بناءً على الترتيب التصاعدي المعتمد للأقسام (بداية ← خلال ← نهاية)
+            // الخطوة 2: الفرز التكتيكي الذكي (ترتيب تصاعدي للأقسام أولاً، وفي حالة الدمج والغياب يتم فرز المهام المتشابهة وراء بعضها فوراً)
             const sectionOrder = [SEC_START, SEC_DURING, SEC_END];
-            processedTasks.sort((a, b) => sectionOrder.indexOf(a.section) - sectionOrder.indexOf(b.section));
+            processedTasks.sort((a, b) => {
+                let secDiff = sectionOrder.indexOf(a.section) - sectionOrder.indexOf(b.section);
+                if (secDiff !== 0) return secDiff; // الترتيب الزمني الصارم أولاً
+                
+                // إذا كنا في نفس القسم ويوجد دمج أو ترحيل مهام، نقوم بفرز المتشابه وراء بعضه مباشرة بناءً على أول كلمتين
+                if (totalAbsents > 0) {
+                    return a.baseKey.localeCompare(b.baseKey, 'ar');
+                }
+                return 0; // الحفاظ على الترتيب الافتراضي إذا لم يكن هناك غياب
+            });
 
-            // الخطوة 3: ملء الجدول وحساب إحصائيات عدادات الـ KPIs
+            // الخطوة 3: عرض الجدول وحساب العدادات
             let bodyHTML = '';
             let totalTasks = processedTasks.length;
             let completedTasks = 0;
@@ -354,12 +376,12 @@
 
             tableBody.innerHTML = bodyHTML || `<tr><td colspan="5" style="padding: 40px; color: #64748b; font-weight: bold; text-align: center;">لا توجد أي مهام مطابقة للفلتر الحالي أو شروط غياب الشفت.</td></tr>`;
 
-            // تحديث قيم العدادات الرقمية في الشاشة
+            // تحديث كروت الـ KPIs
             document.getElementById('overallKPI').innerText = totalTasks === 0 ? '0%' : Math.round((completedTasks / totalTasks) * 100) + '%';
             document.getElementById('pendingKPI').innerText = pendingTasks;
             document.getElementById('startKPI').innerText = sectionMetrics[SEC_START].t === 0 ? '0%' : Math.round((sectionMetrics[SEC_START].c / sectionMetrics[SEC_START].t) * 100) + '%';
             document.getElementById('duringKPI').innerText = sectionMetrics[SEC_DURING].t === 0 ? '0%' : Math.round((sectionMetrics[SEC_DURING].c / sectionMetrics[SEC_DURING].t) * 100) + '%';
-            document.getElementById('endKPI').innerText = sectionMetrics[SEC_END].t === 0 ? '0%' : Math.round((sectionMetrics[SEC_END].c / sectionMetrics[SEC_END].t) * 100) + '%';
+            document.getElementById('endKPI').innerText = sectionMetrics[SEC_END].t === 0 ? '0%' : Math.round((sectionMetrics[SECTION_END].c / sectionMetrics[SEC_END].t) * 100) + '%';
         }
 
         window.onload = function() { renderDashboard(); };

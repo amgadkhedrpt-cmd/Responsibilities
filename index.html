@@ -65,7 +65,7 @@
         
         <header>
             <h1>نظام المتابعة والتفتيش التفاعلي - BodyFix</h1>
-            <p>لوحة التحكم الشاملة لفرعي (الدقي والهرم) مع التوجيه الذكي للمهام المتبادلة في حالات الغياب الطارئة</p>
+            <p>لوحة التحكم الشاملة لفرعي (الدقي والهرم) مع النقل الذكي المبني على عدد الغيابات الإجمالي للموظفين</p>
         </header>
 
         <section class="filters-section">
@@ -82,7 +82,7 @@
                 <select id="roleFilter" onchange="renderDashboard()">
                     <option value="ALL">📊 شاشة الإدارة والمشرف الكاملة (كل الموظفين)</option>
                     <option value="F">📋 سكرتارية الشيفت الصباحي (الفرعين)</option>
-                    <option value="H">📋 سكرتارية عيادة واحد (1) - تشمل البديل</option>
+                    <option value="H">📋 سكرتارية عيادة واحد (1) - تشمل تحويل الغياب</option>
                     <option value="J">📋 سكرتارية عيادة اثنين (2)</option>
                     <option value="L">📋 مشرف السكرتارية (الفرعين) - تشمل طوارئ الـ 2 غياب</option>
                     <option value="DOKKI_STAFF">📋 سكرتارية الدقي (الشفت الكامل للفرع)</option>
@@ -91,12 +91,12 @@
         </section>
 
         <section class="absence-section">
-            <div class="absence-title">⚠️ إدارة الطوارئ والغياب اليومي للفروع:</div>
+            <div class="absence-title">⚠️ تسجيل غياب أي موظف اليوم (توجيه ذاتي حسب العدد):</div>
             <label class="checkbox-group">
-                <input type="checkbox" id="absentH" onchange="renderDashboard()"> غياب موظف عيادة 1 (H) 
+                <input type="checkbox" id="absent1" onchange="renderDashboard()"> غياب الموظف الأول
             </label>
             <label class="checkbox-group">
-                <input type="checkbox" id="absentJ" onchange="renderDashboard()"> غياب موظف عيادة 2 (J)
+                <input type="checkbox" id="absent2" onchange="renderDashboard()"> غياب الموظف الثاني
             </label>
         </section>
 
@@ -210,7 +210,7 @@
             { role: "DOKKI_STAFF", section: "خلال الشفت", title: "تأكيد المواعيد غير المؤكده لليوم لفرع الدقي", branch: "الدقي", status: false },
             { role: "DOKKI_STAFF", section: "خلال الشفت", title: "تسكين المواعيد غير المسكنه لليوم من قائمة الانتظار و ال follow up فرع الدقي", branch: "الدقي", status: false },
             { role: "DOKKI_STAFF", section: "خلال الشفت", title: "مراجعة شيت التثبيتات للمرضي ال تثبيتهم انتهي اليوم بالدقي", branch: "الدقي", status: false },
-            { role: "DOKKI_STAFF", section: "خلال الشفت", title: "حجز المواعيد غير المحجوزة للمرضى بجدول اليوم و تكرارها بالدقي", branch: "الدقي", status: false },
+            { role: "DOKKI_STAFF", section: "خلال الشفت", title: "حجز المواعيد غير المحجوزة للممرضى بجدول اليوم و تكرارها بالدقي", branch: "الدقي", status: false },
             { role: "DOKKI_STAFF", section: "خلال الشفت", title: "تأكيد المواعيد لليوم التالي فرع الدقي", branch: "الدقي", status: false },
             { role: "DOKKI_STAFF", section: "خلال الشفت", title: "تسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي بالدقي", branch: "الدقي", status: false },
             { role: "DOKKI_STAFF", section: "خلال الشفت", title: "متابعة الوصول للمرضي وصالة العيادة بالدقي", branch: "الدقي", status: false },
@@ -246,12 +246,10 @@
             const branchFilter = document.getElementById('branchFilter').value;
             const roleFilter = document.getElementById('roleFilter').value;
             
-            // قراءة لوحة غيابات الموظفين الفورية
-            const isH_Absent = document.getElementById('absentH').checked;
-            const isJ_Absent = document.getElementById('absentJ').checked;
-            
-            // حساب إجمالي عدد الأفراد الغائبين
-            const totalAbsents = (isH_Absent ? 1 : 0) + (isJ_Absent ? 1 : 0);
+            // عد عدد خانات الغياب النشطة بشكل عام (بغض النظر عن الاسم)
+            const countAbsent1 = document.getElementById('absent1').checked ? 1 : 0;
+            const countAbsent2 = document.getElementById('absent2').checked ? 1 : 0;
+            const totalAbsents = countAbsent1 + countAbsent2;
 
             const tableHeader = document.getElementById('tableHeader');
             const tableBody = document.getElementById('tableBody');
@@ -278,36 +276,29 @@
             let hasData = false;
 
             tasks.forEach((task, index) => {
-                // ---- تطبيق منطق سلسلة الطوارئ ونقل المسؤوليات الجديد بالملي ----
+                // ---- تنفيذ منطق أرقام الغياب التكتيكي المحدّد بالملي ----
                 let currentOwner = task.role;
                 let isTransferred = false;
-                let transferType = ''; // 'TO_H' أو 'TO_L' تمييزاً للألوان
+                let transferType = ''; 
 
-                // السيناريو A: غياب 2 موظفين مع بعض (عيادة 1 + عيادة 2) 👈 الشغل بالكامل يروح لـ "المشرف L"
-                if (totalAbsents === 2) {
+                // الحالة الأولى: لو غاب موظف واحد فقط (إجمالي الغيابات = 1) 👈 تدمج مهام عيادة 2 وترحل لـ عيادة 1
+                if (totalAbsents === 1) {
+                    if (task.role === 'J') {
+                        currentOwner = 'H';
+                        isTransferred = true;
+                        transferType = 'TO_H';
+                    }
+                } 
+                // الحالة الثانية: لو غاب موظفين اثنين (إجمالي الغيابات = 2) 👈 ترحل مهام عيادة 1 وعيادة 2 معاً لـ المشرف L
+                else if (totalAbsents === 2) {
                     if (task.role === 'H' || task.role === 'J') {
                         currentOwner = 'L';
                         isTransferred = true;
                         transferType = 'TO_L';
                     }
-                } 
-                // السيناريو B: غياب موظف واحد فقط
-                else if (totalAbsents === 1) {
-                    // لو عيادة 2 هو اللي غايب 👈 مهامه تروح لـ "عيادة 1 H" يشيلها مع شغله
-                    if (task.role === 'J' && isJ_Absent) {
-                        currentOwner = 'H';
-                        isTransferred = true;
-                        transferType = 'TO_H';
-                    }
-                    // لو عيادة 1 هو اللي غايب 👈 مهامه يرجع يراجعها المشرف أو التيم المتاح حسب دورة العمل
-                    if (task.role === 'H' && isH_Absent) {
-                        currentOwner = 'L'; // خط الدفاع الإداري
-                        isTransferred = true;
-                        transferType = 'TO_L';
-                    }
                 }
 
-                // تصفية الفلاتر بناءً على الموظف الفعلي المكلف بالمهمة "حاليًا" في الشفت
+                // التصفية الفورية بناءً على الموظف الفعلي المعين للمهمة بعد الترحيل
                 const matchBranch = branchFilter === 'ALL' || task.branch === 'الكل' || task.branch === branchFilter;
                 const matchRole = roleFilter === 'ALL' || currentOwner === roleFilter;
 
@@ -328,13 +319,13 @@
                     else if (task.section.includes("خلال")) rowClass = 'row-during';
                     else if (task.section.includes("نهاية")) rowClass = 'row-end';
 
-                    // تشكيل البادج الوظيفي الذكي مع توضيح التحويل
+                    // تشكيل البادج الوظيفي الذكي بناءً على التوجيه الجديد
                     let ownerBadge = '';
                     if (isTransferred) {
                         if (transferType === 'TO_H') {
-                            ownerBadge = `<span class="badge badge-transfer">🔄 تحويل لـ عيادة 1 (بديل)</span>`;
+                            ownerBadge = `<span class="badge badge-transfer">🔄 دمج: عيادة 1 يستلم شغل عيادة 2</span>`;
                         } else if (transferType === 'TO_L') {
-                            ownerBadge = `<span class="badge badge-danger-transfer">⚠️ طوارئ: المشرف (L) يستلم</span>`;
+                            ownerBadge = `<span class="badge badge-danger-transfer">⚠️ طوارئ [2 غياب]: المشرف (L) يستلم</span>`;
                         }
                     } else {
                         ownerBadge = `<span class="badge">${roleLabels[currentOwner]}</span>`;

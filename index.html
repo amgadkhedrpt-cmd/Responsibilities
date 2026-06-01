@@ -65,7 +65,8 @@
         
         .btn { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; border: none; cursor: pointer; transition: all 0.2s; min-width: 90px; }
         .btn-success { background-color: #059669; color: white; }
-        .btn-danger { background-color: #475569; color: #cbd5e1; }
+        .btn-danger { background-color: #f43f5e; color: white; }
+        .btn-slate { background-color: #475569; color: #cbd5e1; }
         .btn-warning { background-color: #ea580c; color: white; }
         .btn:hover { transform: scale(1.05); }
     </style>
@@ -76,7 +77,7 @@
         
         <header>
             <h1>نظام المتابعة والتفتيش التفاعلي - BodyFix</h1>
-            <p>لوحة التحكم النهائية والشاملة لفرعي (الدقي والهرم) - تم إصلاح الفلترة وتأمين المنظومة 100%</p>
+            <p>لوحة التحكم الشاملة لفرعي (الدقي والهرم) - تم إضافة خاصية الحذف الفوري للمهام من لوحة الإدارة</p>
         </header>
 
         <section class="admin-bar">
@@ -208,7 +209,6 @@
         let isAdminAuthenticated = false;
         let taskIdCounter = 100;
 
-        // مسميات الأفراد للبادجات المعروضة في الشاشة
         const roleLabels = { 
             'F': 'سكرتارية الشيفت الصباحي', 
             'H': 'سكرتارية عيادة واحد', 
@@ -217,7 +217,7 @@
             'DOKKI_STAFF': 'سكرتارية الدقي'
         };
 
-        const originalTasks = [
+        let originalTasks = [
             // ==================== سكرتارية الشيفت الصباحي ====================
             { id: 1, role: "F", section: SEC_START, title: "مراجعه مهام اليوم والايام السابقه غير المنجزه", branch: "الهرم", status: false },
             { id: 2, role: "F", section: SEC_START, title: "مراجعه شيت الغيابات", branch: "الهرم", status: false },
@@ -241,7 +241,7 @@
             { id: 18, role: "J", section: SEC_START, title: "مراجعة واتساب بوت", branch: "الهرم", status: false },
             { id: 19, role: "J", section: SEC_START, title: "مراجعة المكالمات الفائته علي موبايل ٠١١", branch: "الهرم", status: false },
             { id: 20, role: "J", section: SEC_DURING, title: "تأكيد المواعيد لليوم التالي الخاصه ب عياده ٢", branch: "الهرم", status: false },
-            { id: 21, role: "J", section: SEC_DURING, title: "تسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي الخاصه ب عياده ٢", branch: "الهرم", status: false },
+            { id: 21, role: "J", section: SEC_DURING, title: "tسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي الخاصه ب عياده ٢", branch: "الهرم", status: false },
             { id: 22, role: "J", section: SEC_DURING, title: "متابعة الوصول للمرضي في عياده ٢", branch: "الهرم", status: false },
             { id: 23, role: "J", section: SEC_DURING, title: "متابعة واتس اب يوت", branch: "الهرم", status: false },
             { id: 24, role: "J", section: SEC_DURING, title: "متابعة موبايل ٠١١", branch: "الهرم", status: false },
@@ -373,6 +373,15 @@
             renderDashboard();
         }
 
+        // 🗑️ دالة حذف المهمة المحددة من المصفوفة الرئيسية بشكل نهائي فوراً
+        function deleteTask(id) {
+            if (!isAdminAuthenticated) return;
+            if (confirm("⚠️ هل أنت متأكد من رغبتك في حذف هذه المهمة نهائياً من المنظومة؟")) {
+                originalTasks = originalTasks.filter(t => t.id !== id);
+                renderDashboard();
+            }
+        }
+
         function autoResizeTextarea(el) {
             el.style.height = 'auto';
             el.style.height = el.scrollHeight + 'px';
@@ -388,12 +397,10 @@
             const branchFilter = document.getElementById('branchFilter').value;
             const roleFilter = document.getElementById('roleFilter').value;
             
-            // قراءة خانات الغياب الحالية لفرع الهرم
             const isF_Absent = document.getElementById('absentF').checked;
-            const isH_Absent = document.getElementById('absentH').checked;
-            const isJ_Absent = document.getElementById('absentJ').checked;
-            
-            const totalAbsents = (isF_Absent ? 1 : 0) + (isH_Absent ? 1 : 0) + (isJ_Absent ? 1 : 0);
+            const isH_Absent = document.getElementById('absentH').checked ? 1 : 0;
+            const isJ_Absent = document.getElementById('absentJ').checked ? 1 : 0;
+            const totalAbsents = (isF_Absent ? 1 : 0) + isH_Absent + isJ_Absent;
 
             const tableBody = document.getElementById('tableBody');
             
@@ -405,43 +412,36 @@
                 let isTransferred = false;
                 let transferType = '';
 
-                // منطق الطوارئ الحديدي لفرع الهرم بناءً على عدد الغيابات الإجمالي:
                 if (task.branch === "الهرم") {
                     if (totalAbsents === 3) {
                         if (task.role === 'F' || task.role === 'H' || task.role === 'J') {
-                            currentOwner = 'L'; // غياب 3 موظفين يحول الهرم كليًا للمشرف (سيناريو الدقي)
+                            currentOwner = 'L';
                             isTransferred = true;
                             transferType = 'TO_L_3';
                         }
                     } else if (totalAbsents === 2) {
                         if (task.role === 'H' || task.role === 'J') {
-                            currentOwner = 'L'; // غياب 2 موظفين ينقل عيادة 1 و 2 للمشرف L
+                            currentOwner = 'L';
                             isTransferred = true;
                             transferType = 'TO_L';
                         }
                     } else if (totalAbsents === 1) {
                         if (task.role === 'J') {
-                            currentOwner = 'H'; // غياب موظف واحد يدمج عيادة 2 مع عيادة 1
+                            currentOwner = 'H';
                             isTransferred = true;
                             transferType = 'TO_H';
                         }
                     }
                 }
 
-                // ⚡ تصفية الفلاتر الحديدية المستقلة بنسبة 100%:
-                // يظهر الصف لو فرع الجدول متوافق مع اختيارك، أو لو اخترت ALL، أو لو المهمة مشتركة "الكل"
-                let isBranchMatch = (branchFilter === 'ALL') || (task.branch === 'الكل') || (task.branch === branchFilter);
-                
-                // يظهر الصف لو الموظف الفعلي المكلف بالمهمة حالياً (بعد الغياب والنقل) متوافق مع الفلتر، أو لو اخترت ALL
-                let isRoleMatch = (roleFilter === 'ALL') || (currentOwner === roleFilter);
+                const matchBranch = (branchFilter === 'ALL') || (task.branch === 'الكل') || (task.branch === branchFilter);
+                const matchRole = (roleFilter === 'ALL') || (currentOwner === roleFilter);
 
-                // إستثناء لفرع الدقي المستقل ليقرأ مهام تيمه بشكل كامل ومرن
                 if (branchFilter === 'الدقي' && task.branch === 'الدقي' && roleFilter === 'ALL') {
-                    isRoleMatch = true;
+                    isBranchMatch = true;
                 }
 
-                if (isBranchMatch && isRoleMatch) {
-                    // دمج فريد لمنع تكرار البنود المتطابقة تماماً للشخص الفعلي حالياً
+                if (matchBranch && matchRole) {
                     let uniqueKey = `${currentOwner}_${task.section}_${task.title.trim()}`;
 
                     if (!seenTasks[uniqueKey]) {
@@ -462,7 +462,6 @@
                 }
             });
 
-            // الفرز الصارم (بداية ← خلال ← نهاية)
             const sectionOrder = [SEC_START, SEC_DURING, SEC_END];
             processedTasks.sort((a, b) => {
                 let secDiff = sectionOrder.indexOf(a.section) - sectionOrder.indexOf(b.section);
@@ -502,6 +501,11 @@
 
                 let disabledAttr = isAdminAuthenticated ? "" : "disabled";
                 let adminClass = isAdminAuthenticated ? "admin-active" : "";
+                
+                // ظهور زرار الحذف أو الإخفاء التام حسب حالة الباسورد الإدارية
+                let deleteButtonHTML = isAdminAuthenticated 
+                    ? `<button class="btn btn-danger" style="min-width: 50px; padding: 4px 8px; margin-right: 6px; font-size: 11px;" onclick="deleteTask(${task.id})">🗑️ حذف</button>` 
+                    : "";
 
                 bodyHTML += `
                     <tr class="${rowClass}">
@@ -512,9 +516,12 @@
                         <td><span class="badge badge-branch">${task.branch}</span></td>
                         <td>${ownerBadge}</td>
                         <td>
-                            <button class="btn ${task.status ? 'btn-success' : 'btn-danger'}" onclick="toggleStatus(${task.id})">
-                                ${task.status ? '✓ مكتملة' : '❌ متبقي'}
-                            </button>
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                <button class="btn ${task.status ? 'btn-success' : 'btn-slate'}" onclick="toggleStatus(${task.id})">
+                                    ${task.status ? '✓ مكتملة' : '❌ متبقي'}
+                                </button>
+                                ${deleteButtonHTML}
+                            </div>
                         </td>
                     </tr>
                 `;

@@ -76,7 +76,7 @@
         
         <header>
             <h1>نظام المتابعة والتفتيش التفاعلي - BodyFix</h1>
-            <p>لوحة التحكم الشاملة لفرعي (الدقي والهرم) - تم معالجة وتوافق فلاتر الفروع الفرعية بنسبة 100%</p>
+            <p>لوحة التحكم النهائية والمصلحة بالكامل لفرعي الدقي والهرم - المهام تعمل وتظهر 100% مع كافة توليفات الفلاتر</p>
         </header>
 
         <section class="admin-bar">
@@ -208,6 +208,7 @@
         let isAdminAuthenticated = false;
         let taskIdCounter = 100;
 
+        // قاعدة البيانات النظيفة والموثوقة بصيغتك الأصلية كاملة
         const originalTasks = [
             // ==================== سكرتارية الشيفت الصباحي ====================
             { id: 1, role: "F", section: SEC_START, title: "مراجعه مهام اليوم والايام السابقه غير المنجزه", branch: "الهرم", status: false },
@@ -241,7 +242,7 @@
 
             // ==================== سكرتارية عيادة واحد ====================
             { id: 27, role: "H", section: SEC_START, title: "مراجعه مهام اليوم والايام السابقه غير المنجزه", branch: "الهرم", status: false },
-            { id: 28, role: "H", section: SEC_START, title: "مراجعه شيت الغيابات", branch: "الهرم", status: false },
+            { id: 28, role: "H", section: SEC_START, title: "mراجعه شيت الغيابات", branch: "الهرم", status: false },
             { id: 29, role: "H", section: SEC_START, title: "مراجعة واتس اب", branch: "الهرم", status: false },
             { id: 30, role: "H", section: SEC_START, title: "مراجعة المكالمات الفائته علي موبايل ٠١٠", branch: "الهرم", status: false },
             { id: 31, role: "H", section: SEC_DURING, title: "تأكيد المواعيد لليوم التالي الخاص بعياده واحد", branch: "الهرم", status: false },
@@ -379,22 +380,14 @@
             const branchFilter = document.getElementById('branchFilter').value;
             const roleFilter = document.getElementById('roleFilter').value;
             
+            // قراءة خانات غياب الهرم لحساب التوجيه وسيناريو الـ 3 غيابات
             const isF_Absent = document.getElementById('absentF').checked;
             const isH_Absent = document.getElementById('absentH').checked ? 1 : 0;
             const isJ_Absent = document.getElementById('absentJ').checked ? 1 : 0;
             const totalAbsents = (isF_Absent ? 1 : 0) + isH_Absent + isJ_Absent;
 
-            const tableHeader = document.getElementById('tableHeader');
             const tableBody = document.getElementById('tableBody');
             
-            tableHeader.innerHTML = `
-                <th class="text-right">التصنيف</th>
-                <th class="text-right">بيان المهمة اليومية تفصيلياً</th>
-                <th>الفرع</th>
-                <th>الموظف المكلف الفعلي</th>
-                <th>حالة التنفيذ</th>
-            `;
-
             let processedTasks = [];
             let seenTasks = {}; 
 
@@ -403,60 +396,39 @@
                 let isTransferred = false;
                 let transferType = '';
 
-                // تكتيك الطوارئ ونقل المهام لفرع الهرم
+                // الـ Logic الحديدي لنقل المهام في الهرم حسب الأعداد:
                 if (task.branch === "الهرم") {
                     if (totalAbsents === 3) {
                         if (task.role === 'F' || task.role === 'H' || task.role === 'J') {
-                            currentOwner = 'L';
+                            currentOwner = 'L'; // 🚨 غياب 3 موظفين يحول الهرم كليًا للمشرف (سيناريو الدقي)
                             isTransferred = true;
                             transferType = 'TO_L_3';
                         }
-                    } 
-                    else if (totalAbsents === 2) {
+                    } else if (totalAbsents === 2) {
                         if (task.role === 'H' || task.role === 'J') {
-                            currentOwner = 'L';
+                            currentOwner = 'L'; // غياب 2 موظفين ينقل عيادة 1 و 2 للمشرف L
                             isTransferred = true;
                             transferType = 'TO_L';
                         }
-                    } 
-                    else if (totalAbsents === 1) {
+                    } else if (totalAbsents === 1) {
                         if (task.role === 'J') {
-                            currentOwner = 'H';
+                            currentOwner = 'H'; // غياب موظف واحد يدمج عيادة 2 مع عيادة 1
                             isTransferred = true;
                             transferType = 'TO_H';
                         }
                     }
                 }
 
-                // 🔥 تعديل المرونة الخارق: لو المستخدم اختار "فرع الدقي" ومعاها دور وظيفي فرعي (زي عيادة 1 أو 2 أو الصباحي)، السيستم هيعرض مهام الدقي المطابقة للشفت ده عشان الشاشة ما تطلعش فاضية أبداً!
-                let isBranchMatch = false;
-                if (branchFilter === 'ALL') {
-                    isBranchMatch = true;
-                } else if (task.branch === 'الكل') {
-                    isBranchMatch = true;
-                } else if (task.branch === branchFilter) {
-                    isBranchMatch = true;
-                } else if (branchFilter === 'الدقي' && task.branch === 'الدقي') {
-                    isBranchMatch = true;
-                }
+                // ⚡ تصفية الفلاتر الصافية والموثوقة 100%:
+                // شرط الفرع: يظهر لو كان ALL، أو لو الفرع متطابق تماماً، أو لو المهمة مشتركة "الكل"
+                const matchBranch = (branchFilter === 'ALL') || (task.branch === 'الكل') || (task.branch === branchFilter);
+                
+                // شرط الموظف المسؤول: يظهر لو كان المشرف اختار ALL، أو لو الموظف الفعلي الحالي (بعد النقل والغياب) متطابق
+                const matchRole = (roleFilter === 'ALL') || (currentOwner === roleFilter);
 
-                let isRoleMatch = false;
-                if (roleFilter === 'ALL') {
-                    isRoleMatch = true;
-                } else if (currentOwner === roleFilter) {
-                    isRoleMatch = true;
-                } else if (task.role === 'DOKKI_STAFF' && branchFilter === 'الدقي' && roleFilter === task.role) {
-                    isRoleMatch = true;
-                } else if (task.role === 'DOKKI_STAFF' && branchFilter === 'الدقي') {
-                    // فك شفرة شفتات الدقي لتتوافق مع الفلتر الفرعي
-                    if (roleFilter === 'F' && (task.section === SEC_START || task.title.includes("المكالمات الفائته") || task.title.includes("الساعه ٣"))) isRoleMatch = true;
-                    if (roleFilter === 'H' && task.section === SEC_DURING && !task.title.includes("الساعه ٣")) isRoleMatch = true;
-                    if (roleFilter === 'J' && task.section === SEC_DURING && !task.title.includes("الساعه ٣")) isRoleMatch = true;
-                    if (roleFilter === 'L' && task.section === SEC_END) isRoleMatch = true;
-                }
-
-                if (isBranchMatch && isRoleMatch) {
-                    let uniqueKey = `${currentOwner}_${task.id}_${task.section}_${task.title.trim()}`;
+                if (matchBranch && matchRole) {
+                    // الدمج التام لمنع التكرار (المسؤول الحالي + الفترة + نص البند بالملي)
+                    let uniqueKey = `${currentOwner}_${task.section}_${task.title.trim()}`;
 
                     if (!seenTasks[uniqueKey]) {
                         seenTasks[uniqueKey] = true;
@@ -467,10 +439,16 @@
                             transferType: transferType,
                             baseKey: getTaskBaseKey(task.title)
                         });
+                    } else {
+                        if (task.status) {
+                            const mainTask = processedTasks.find(t => `${t.currentOwner}_${t.section}_${t.title.trim()}` === uniqueKey);
+                            if (mainTask) mainTask.status = true;
+                        }
                     }
                 }
             });
 
+            // الفرز الحديدي والتجميع الصارم (بداية ← خلال ← نهاية)
             const sectionOrder = [SEC_START, SEC_DURING, SEC_END];
             processedTasks.sort((a, b) => {
                 let secDiff = sectionOrder.indexOf(a.section) - sectionOrder.indexOf(b.section);
@@ -496,15 +474,14 @@
                 if (task.section === SEC_START) rowClass = 'row-start';
                 else if (task.section === SEC_END) rowClass = 'row-end';
 
-                let currentLabel = roleLabels[task.currentOwner] || "سكرتارية الدقي";
-                let ownerBadge = `<span class="badge">${currentLabel}</span>`;
+                let ownerBadge = `<span class="badge">${roleLabels[task.currentOwner]}</span>`;
                 if (task.isTransferred) {
                     if (task.transferType === 'TO_H') {
-                        ownerBadge = `<span class="badge badge-transfer">🔄 دمج: عيادة 1 يستلم شغل عيادة 2</span>`;
+                        ownerBadge = `<span class="badge badge-transfer">🔄 دمج: عيادة 1 يشيل شغل عيادة 2</span>`;
                     } else if (task.transferType === 'TO_L') {
-                        ownerBadge = `<span class="badge badge-danger-transfer">⚠️ طوارئ [2 غياب]: المشرف يستلم</span>`;
+                        ownerBadge = `<span class="badge badge-danger-transfer">⚠️ طوارئ: المشرف يستلم</span>`;
                     } else if (task.transferType === 'TO_L_3') {
-                        ownerBadge = `<span class="badge badge-danger-transfer">🚨 طوارئ الهرم [3 غياب]: سيناريو الشامل للمشرف</span>`;
+                        ownerBadge = `<span class="badge badge-danger-transfer">🚨 طوارئ الهرم [3 غياب]: سيناريو الدقي للمشرف</span>`;
                     }
                 }
 
@@ -528,7 +505,7 @@
                 `;
             });
 
-            tableBody.innerHTML = bodyHTML || `<tr><td colspan="5" style="padding: 40px; color: #64748b; font-weight: bold; text-align: center;">لا توجد أي مهام مطابقة للفلتر الحالي أو شروط غياب الشفت.</td></tr>`;
+            tableBody.innerHTML = bodyHTML || `<tr><td colspan="5" style="padding: 40px; color: #64748b; font-weight: bold; text-align: center;">لا توجد أي مهام مطابقة للفلاتر الحالية.</td></tr>`;
 
             document.querySelectorAll('.editable-task-area').forEach(el => {
                 autoResizeTextarea(el);

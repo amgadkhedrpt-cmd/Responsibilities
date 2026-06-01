@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم مهام عيادات BodyFix</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 p-4 md:p-6">
+
+    <div id="app" class="max-w-7xl mx-auto space-y-6">
+        
+        <header class="bg-white p-6 rounded-2xl shadow-xs border border-gray-100 text-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-blue-900">لوحة تحكم مهام عيادات BodyFix الذكية</h1>
+            <p class="text-gray-500 mt-2 text-sm md:text-base">توزيع ومتابعة تكتيكية للمهام بناءً على الشفتات (الصباحي 11 ص / المسائي 3 م)</p>
+        </header>
+
+        <section class="bg-white p-5 rounded-2xl shadow-xs border border-gray-100 space-y-3">
+            <label class="block font-bold text-gray-700 text-lg">🔍 اختر الدور الوظيفي لتصفية الشغل:</label>
+            <select v-model="selectedRole" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-gray-700 font-medium">
+                <option value="ALL">📊 شاشة المشرف الكاملة (عرض كل المهام والشفتات)</option>
+                <option v-for="role in roles" :key="role" :value="role">📋 مهامي كـ ({{ role }})</option>
+            </select>
+        </section>
+
+        <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100 text-center">
+                <p class="text-xs text-emerald-700 font-medium">الإنجاز العام للمنشأة</p>
+                <h3 class="text-2xl font-bold text-emerald-900 mt-1">{{ overallPercentage }}%</h3>
+            </div>
+            <div class="bg-rose-50 p-4 rounded-xl border border-rose-100 text-center">
+                <p class="text-xs text-rose-700 font-medium">المهام المتبقية</p>
+                <h3 class="text-2xl font-bold text-rose-900 mt-1">{{ pendingTasksCount }}</h3>
+            </div>
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 text-center">
+                <p class="text-xs text-blue-700 font-medium">بدء ونهاية اليوم 🟦</p>
+                <h3 class="text-xl font-bold text-blue-900 mt-1">{{ sectionMetrics['بدء ونهاية اليوم'] }}%</h3>
+            </div>
+            <div class="bg-green-50 p-4 rounded-xl border border-green-100 text-center">
+                <p class="text-xs text-green-700 font-medium">وسط اليوم 🟩</p>
+                <h3 class="text-xl font-bold text-green-900 mt-1">{{ sectionMetrics['وسط اليوم'] }}%</h3>
+            </div>
+            <div class="bg-amber-50 p-4 rounded-xl border border-amber-100 text-center col-span-2 md:col-span-1">
+                <p class="text-xs text-amber-700 font-medium">المراقبة والمراجعة 🟧</p>
+                <h3 class="text-xl font-bold text-amber-900 mt-1">{{ sectionMetrics['المراقبة والمراجعة'] }}%</h3>
+            </div>
+        </section>
+
+        <section class="bg-white p-6 rounded-2xl shadow-xs border border-gray-100 overflow-hidden">
+            <h2 class="text-xl font-bold text-blue-900 mb-4">📝 جدول توزيع الشغل التكتيكي وحالة الإنجاز</h2>
+            
+            <div class="overflow-x-auto rounded-xl border border-gray-200">
+                <table class="w-full text-right border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-blue-900 text-white font-bold">
+                            <th class="p-3">التصنيف</th>
+                            <th class="p-3">الفترة</th>
+                            <th class="p-3">بيان المهمة</th>
+                            <th class="p-3">الخط / التخصيص</th>
+                            <th class="p-3">المسؤول المكلف</th>
+                            <th class="p-3 text-center">الحالة الإيجارية</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <tr v-for="(task, index) in filteredTasks" :key="index" :class="getSectionClass(task.section)">
+                            <td class="p-3 font-bold">{{ task.section }}</td>
+                            <td class="p-3 text-gray-600 font-medium whitespace-nowrap">{{ task.time }}</td>
+                            <td class="p-3 text-gray-900 font-medium max-w-xs md:max-w-md break-words">{{ task.title }}</td>
+                            <td class="p-3"><span class="bg-white/60 px-2 py-1 rounded-md text-xs border border-black/5">{{ task.detail }}</span></td>
+                            <td class="p-3 font-medium text-gray-700">{{ task.assignedTo }}</td>
+                            <td class="p-3 text-center whitespace-nowrap">
+                                <button @click="toggleTaskStatus(task)" 
+                                        :class="task.completed ? 'bg-emerald-600 text-white' : 'bg-rose-100 text-rose-700 border border-rose-200'"
+                                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer hover:scale-105">
+                                    {{ task.completed ? '✓ مكتملة' : '❌ قيد التنفيذ' }}
+                                </button>
+                            </td>
+                        </tr>
+                        <tr v-if="filteredTasks.length === 0">
+                            <td colspan="6" class="p-8 text-center text-gray-400 font-medium bg-gray-50">مفيش مهام معروضة للشفت ده حالياً.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed } = Vue;
+
+        createApp({
+            setup() {
+                const selectedRole = ref('ALL');
+                
+                const roles = ref([
+                    "مسؤولة الشفت الصباحي", 
+                    "سكرتارية عيادة 1", 
+                    "سكرتارية عيادة 2", 
+                    "مشرف السكرتارية"
+                ]);
+
+                // قاعدة البيانات من واقع صور وجدول العيادة والشفتات المحددة
+                const tasks = ref([
+                    // ---- شفت الصباح (11:00 صباحاً - 03:00 مساءً) ----
+                    { section: "بدء ونهاية اليوم", time: "11:00 - 12:00", title: "مهام بدء اليوم وتنسيق غير المتاحين", detail: "عام (فرع الدقي والهرم)", assignedTo: "مسؤولة الشفت الصباحي", completed: false },
+                    { section: "بدء ونهاية اليوم", time: "11:00 - 03:00", title: "مراجعة الروتساب والرد على الرسائل ومتابعة الخطوط", detail: "خط 010 + خط 011", assignedTo: "مسؤولة الشفت الصباحي", completed: true },
+                    { section: "وسط اليوم", time: "12:00 - 02:00", title: "تأكيد المواعيد غير المؤكدة وتسكين الـ Follow up المبدئي", detail: "قائمة الانتظار الصباحية", assignedTo: "مسؤولة الشفت الصباحي", completed: false },
+                    
+                    // ---- شفت المساء (من 03:00 مساءً فصاعداً) ----
+                    { section: "وسط اليوم", time: "03:00 مساءً فصاعداً", title: "مراجعة واستلام الروتساب والرد على العملاء", detail: "خط 010 (حصر عيادة 1)", assignedTo: "سكرتارية عيادة 1", completed: false },
+                    { section: "وسط اليوم", time: "03:00 مساءً فصاعداً", title: "مراجعة واستلام الروتساب والرد على العملاء", detail: "خط 011 (حصر عيادة 2)", assignedTo: "سكرتارية عيادة 2", completed: false },
+                    { section: "وسط اليوم", time: "03:00 - 08:00", title: "استقبل وتوجيه المرضى في الصالة وتنسيق الدخول", detail: "حالات الرجال (Male) - عيادة 1", assignedTo: "سكرتارية عيادة 1", completed: false },
+                    { section: "وسط اليوم", time: "03:00 - 08:00", title: "استقبل وتوجيه المرضى في الصالة وتنسيق الدخول", detail: "حالات السيدات (Female) - عيادة 2", assignedTo: "سكرتارية عيادة 2", completed: false },
+                    { section: "وسط اليوم", time: "طوال الشفت المسائي", title: "متابعة وصول المرضى وتحديث الداتا والملفات الطبية", detail: "تأكيد مواعيد اليوم التالي لعيادة 1", assignedTo: "سكرتارية عيادة 1", completed: false },
+                    { section: "وسط اليوم", time: "طوال الشفت المسائي", title: "متابعة وصول المرضى وتحديث الداتا والملفات الطبية", detail: "تأكيد مواعيد اليوم التالي لعيادة 2", assignedTo: "سكرتارية عيادة 2", completed: false },
+                    
+                    // ---- قفل اليوم والمراجعة ----
+                    { section: "بدء ونهاية اليوم", time: "10:00 - 11:00 مساءً", title: "تقفيل الخزينة وتسليم الحسابات ولوج الإدارة", detail: "الشيفت المسائي بالكامل", assignedTo: "الجميع (عيادة 1 + 2)", completed: false },
+                    { section: "المراقبة والمراجعة", time: "طوال اليوم", title: "مراقبة جودة مواعيد الاستقبال ومراجعة ملاحظات الاتصال المتكرر", detail: "إشراف وتدقيق جودة", assignedTo: "مشرف السكرتارية", completed: false },
+                    { section: "المراقبة والمراجعة", time: "نهاية الشفت", title: "مراجعة الحالات المكتملة ومطابقتها مالياً وطبياً بالسيستم", detail: "تقارير اليومية", assignedTo: "مشرف السكرتارية", completed: false }
+                ]);
+
+                // منطق تصفية وفلترة الجدول ذكياً حسب شفت الحضور والموظف
+                const filteredTasks = computed(() => {
+                    if (selectedRole.value === 'ALL') return tasks.value;
+                    return tasks.value.filter(t => t.assignedTo === selectedRole.value || t.assignedTo.includes("الجميع"));
+                });
+
+                // تغيير حالة المهمة عند الضغط على الزرار
+                const toggleTaskStatus = (task) => {
+                    task.completed = !task.completed;
+                };
+
+                // حساب الإنجاز الكلي للمنشأة
+                const overallPercentage = computed(() => {
+                    if (tasks.value.length === 0) return 0;
+                    const completed = tasks.value.filter(t => t.completed).length;
+                    return Math.round((completed / tasks.value.length) * 100);
+                });
+
+                // حساب عدد المهام المتبقية
+                const pendingTasksCount = computed(() => {
+                    return tasks.value.filter(t => !t.completed).length;
+                });
+
+                // حساب نسبة الإنجاز لكل قسم من الأقسام الثلاثة بصورة مستقلة
+                const sectionMetrics = computed(() => {
+                    const sections = ["بدء ونهاية اليوم", "وسط اليوم", "المراقبة والمراجعة"];
+                    let metrics = {};
+                    
+                    sections.forEach(sec => {
+                        const secTasks = tasks.value.filter(t => t.section === sec);
+                        if (secTasks.length === 0) {
+                            metrics[sec] = 0;
+                        } else {
+                            const completed = secTasks.filter(t => t.completed).length;
+                            metrics[sec] = Math.round((completed / secTasks.length) * 100);
+                        }
+                    });
+                    return metrics;
+                });
+
+                // تلوين خلفيات الصفوف بناءً على الألوان المتواجدة بالصورة والجدول
+                const getSectionClass = (section) => {
+                    if (section === "بدء ونهاية اليوم") return "bg-blue-50/50 hover:bg-blue-50";
+                    if (section === "وسط اليوم") return "bg-emerald-50/30 hover:bg-emerald-50/60";
+                    if (section === "المراقبة والمراجعة") return "bg-amber-50/40 hover:bg-amber-50/70";
+                    return "";
+                };
+
+                return {
+                    selectedRole,
+                    roles,
+                    filteredTasks,
+                    toggleTaskStatus,
+                    overallPercentage,
+                    pendingTasksCount,
+                    sectionMetrics,
+                    getSectionClass
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
+

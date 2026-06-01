@@ -4,41 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة تحكم BodyFix المتكاملة</title>
-    <!-- Tailwind CSS لتصميم عيادات احترافي -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Vue.js للفلاتر الذكية والمعادلات اللحظية -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 p-4 md:p-6">
+<body class="bg-slate-950 text-slate-100 p-4 md:p-6">
 
-    <div id="app" class="max-w-7xl mx-auto space-y-6">
+    <div id="app" class="max-w-7xl mx-auto space-y-6" v-cloak>
         
-        <!-- الهيدر الرئيسي -->
         <header class="bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-700 text-center relative overflow-hidden">
             <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl"></div>
             <h1 class="text-2xl md:text-3xl font-bold text-blue-400">نظام المتابعة التكتيكي الشامل - BodyFix</h1>
-            <p class="text-slate-400 mt-2 text-sm md:text-base">تحليل ومتابعة لحظية لجميع المهام الـ 25 بناءً على ملف (1000076617.png)</p>
+            <p class="text-slate-400 mt-2 text-sm md:text-base">تحليل ومتابعة لحظية لجميع المهام بناءً على الشفتات والفروع</p>
         </header>
 
-        <!-- لوحة الفلاتر المزدوجة والمستقلة -->
         <section class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-800 p-5 rounded-2xl border border-slate-700">
-            <!-- فلتر الفروع الجغرافية -->
             <div class="space-y-2">
                 <label class="block font-bold text-slate-300 text-sm md:text-base">📍 تصفية حسب الفرع:</label>
-                <select v-model="selectedBranch" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500">
+                <select v-model="selectedBranch" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="ALL">🏢 كل الفروع (الدقي + الهرم)</option>
                     <option value="الدقي">🏥 فرع الدقي لوحده</option>
                     <option value="الهرم">🏥 فرع الهرم لوحده</option>
                 </select>
             </div>
 
-            <!-- فلتر الموظفين والأعمدة الفردية -->
             <div class="space-y-2">
                 <label class="block font-bold text-slate-300 text-sm md:text-base">👤 تصفية حسب الموظف المسؤول:</label>
-                <select v-model="selectedRole" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500">
+                <select v-model="selectedRole" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="ALL">📊 شاشة المشرف الكاملة (كل الموظفين)</option>
                     <option value="F">📋 العمود F: سكرتارية الشفت الصباحي (11 ص - 3 م)</option>
                     <option value="H">📋 العمود H: مسؤول عيادة 1 (بعد 3 م - خط 010 والرجال)</option>
@@ -49,10 +43,9 @@
             </div>
         </section>
 
-        <!-- عدادات الأداء الرقمية (KPIs) اللحظية -->
         <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             <div class="bg-emerald-950/40 p-4 rounded-xl border border-emerald-500/30 text-center">
-                <p class="text-xs text-emerald-400 font-medium">نسبة الإنجاز للفلاتر الحالية</p>
+                <p class="text-xs text-emerald-400 font-medium">نسبة الإنجاز للحالة الحالية</p>
                 <h3 class="text-2xl font-bold text-emerald-300 mt-1">{{ overallCompletion }}%</h3>
             </div>
             <div class="bg-rose-950/40 p-4 rounded-xl border border-rose-500/30 text-center">
@@ -73,7 +66,6 @@
             </div>
         </section>
 
-        <!-- الجدول التفاعلي وحصر جميع مهام الصورة بالملي -->
         <section class="bg-slate-800 p-6 rounded-2xl border border-slate-700 overflow-hidden">
             <h2 class="text-xl font-bold text-blue-400 mb-4">📋 حصر قائمة المهام والـ Checklist اليومي الكامل</h2>
             
@@ -94,14 +86,13 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-700/50">
-                        <tr v-for="(task, index) in filteredTasks" :key="index" :class="getRowClass(task.section)">
+                        <tr v-for="task in filteredTasks" :key="task.globalIdx" :class="getRowClass(task.section)">
                             <td class="p-3 font-bold whitespace-nowrap">{{ task.section }}</td>
                             <td class="p-3 text-center text-slate-400 whitespace-nowrap">{{ task.time }}</td>
                             <td class="p-3 text-slate-100 font-medium max-w-xs md:max-w-md break-words">{{ task.title }}</td>
                             <td class="p-3 text-center"><span class="bg-slate-900/60 text-blue-300 px-2 py-0.5 rounded border border-slate-700">{{ task.detail }}</span></td>
                             <td class="p-3 text-center font-bold text-cyan-400 whitespace-nowrap">{{ task.branch }}</td>
                             
-                            <!-- الأعمدة التفاعلية الفردية للأفراد والمشرفين -->
                             <td v-if="showCol('F')" class="p-3 text-center">
                                 <button v-if="task.cols.includes('F')" @click="toggleStatus(task.globalIdx, 'F')" :class="task.status.F ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-400'" class="px-2 py-1 rounded font-bold cursor-pointer transition-all">
                                     {{ task.status.F ? '✓ مكتمل' : '❌ متبقي' }}
@@ -151,7 +142,6 @@
                 const selectedBranch = ref('ALL');
                 const selectedRole = ref('ALL');
 
-                // حصر كامل وشامل لجميع مهام الشيت الموضح بالصورة
                 const tasks = ref([
                     // ---- قسم بدء ونهاية اليوم 🟦 ----
                     { section: "بدء ونهاية اليوم", time: "11:00 - 12:00", title: "مهام بدء اليوم والأيام السابقة غير المنجزة", detail: "عام", branch: "الكل", cols: ['F'], status: { F: false } },
@@ -160,7 +150,7 @@
                     { section: "بدء ونهاية اليوم", time: "11:00 - 12:00", title: "مراجعة خط الواتساب والرد الفوري 011", detail: "خط 011", branch: "الكل", cols: ['F'], status: { F: false } },
                     { section: "بدء ونهاية اليوم", time: "11:00 - 12:00", title: "مراجعة المكالمات الفائتة على جميع الخطوط", detail: "مكالمات فائتة", branch: "الكل", cols: ['F'], status: { F: false } },
                     
-                    // ---- قسم وسط اليوم 🟩 (تأكيد ومتابعة المواعيد والتثبيتات) ----
+                    // ---- قسم وسط اليوم 🟩 ----
                     { section: "وسط اليوم", time: "12:00 - 02:00", title: "تأكيد المواعيد غير المؤكدة لليوم - فرع الدقي", detail: "عيادة 1", branch: "الدقي", cols: ['F', 'H'], status: { F: false, H: false } },
                     { section: "وسط اليوم", time: "12:00 - 02:00", title: "تأكيد المواعيد غير المؤكدة لليوم - فرع الهرم", detail: "عيادة 2", branch: "الهرم", cols: ['F', 'J'], status: { F: false, J: false } },
                     
@@ -186,7 +176,7 @@
                     { section: "وسط اليوم", time: "طوال اليوم", title: "متابعة وردود خط الواتساب والاتصالات لـ خط 011 (الشفت المسائي)", detail: "خط 011", branch: "الكل", cols: ['J'], status: { J: false } },
                     { section: "وسط اليوم", time: "طوال اليوم", title: "متابعة موبايل العيادة والرد التكتيكي على الاستفسارات", detail: "موبايل العيادة", branch: "الكل", cols: ['H', 'J'], status: { H: false, J: false } },
 
-                    // ---- مهام إنهاء الشفت وقفل الخزينة 🟦 ----
+                    // ---- مهام إنهاء الشفت 🟦 ----
                     { section: "بدء ونهاية اليوم", time: "10:00 - 11:00", title: "مراجعة المهام الإجمالية المقفلة وتسليم الحسابات", detail: "الجميع", branch: "الكل", cols: ['H', 'J', 'N'], status: { H: false, J: false, N: false } },
                     { section: "بدء ونهاية اليوم", time: "10:00 - 11:00", title: "مراجعة وتثبيت العيادات والملفات وجرد الخزينة اليومي للفروع", detail: "تقفيل خزينة", branch: "الكل", cols: ['H', 'J', 'N'], status: { H: false, J: false, N: false } },
 
@@ -195,10 +185,9 @@
                     { section: "المراقبة والمراجعة", time: "نهاية الشفت", title: "مراجعة وتحويل الحالات المكتملة على السستم ومطابقة الداتا والملفات والتقارير المالية والطبية المقفلة", detail: "تدقيق مالي وطبي", branch: "الكل", cols: ['N'], status: { N: false } }
                 ]);
 
-                // منطق التصفية الذكي والمرن المزدوج بالفرع والموظف معاً
                 const filteredTasks = computed(() => {
                     return tasks.value
-                        .map((t, idx) => ({ ...t, globalIdx: idx })) // حفظ الاندكس الأصلي للتحكم بالحالة
+                        .map((t, idx) => ({ ...t, globalIdx: idx }))
                         .filter(t => {
                             const matchBranch = selectedBranch.value === 'ALL' || t.branch === 'الكل' || t.branch === selectedBranch.value;
                             const matchRole = selectedRole.value === 'ALL' || t.cols.includes(selectedRole.value);
@@ -214,7 +203,6 @@
                     return selectedRole.value === 'ALL' || selectedRole.value === col;
                 };
 
-                // حساب مؤشرات الإنجاز بناءً على الخلايا النشطة للفلاتر الحالية
                 const overallCompletion = computed(() => {
                     let total = 0, completed = 0;
                     filteredTasks.value.forEach(t => {

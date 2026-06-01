@@ -5,139 +5,123 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة تحكم BodyFix المتكاملة</title>
     
-    <!-- النسخة المستقرة والكلاسيكية لـ Tailwind CSS لتجنب أي تعارض -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- نسخة Vue.js الموثوقة للتفاعلية الفورية -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    
+    <!-- ستايل داخلي فخم لتلوين وتنسيق الجدول والعدادات بدون الحاجة للإنترنت -->
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        /* إخفاء الأكواد حتى يتم تحميل الصفحة بالكامل */
-        [v-cloak] { display: none !important; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f1f5f9; padding: 20px; margin: 0; direction: rtl; }
+        .max-w-7xl { max-w: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+        header { background-color: #1e293b; padding: 24px; rounded-radius: 16px; border: 1px solid #334155; text-align: center; border-radius: 16px; }
+        h1 { color: #38bdf8; margin: 0; font-size: 28px; }
+        header p { color: #94a3b8; margin: 8px 0 0 0; font-size: 14px; }
+        
+        .filters-section { display: grid; grid-template-columns: 1fr; gap: 16px; background-color: #1e293b; padding: 20px; border-radius: 16px; border: 1px solid #334155; }
+        @media (min-width: 768px) { .filters-section { grid-template-columns: 1fr 1fr; } }
+        .filter-group { display: flex; flex-direction: column; gap: 8px; }
+        label { font-weight: bold; color: #cbd5e1; font-size: 14px; }
+        select { width: 100%; padding: 12px; background-color: #0f172a; border: 1px solid #475569; border-radius: 12px; color: #f1f5f9; font-size: 14px; outline: none; }
+        select:focus { border-color: #38bdf8; }
+        
+        .kpis-section { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        @media (min-width: 768px) { .kpis-section { grid-template-columns: repeat(3, 1fr); } @media (min-width: 1024px) { .kpis-section { grid-template-columns: repeat(5, 1fr); } } }
+        .kpi-card { padding: 16px; border-radius: 12px; text-align: center; border: 1px solid transparent; }
+        .kpi-title { font-size: 12px; font-weight: 500; margin: 0; }
+        .kpi-value { font-size: 24px; font-weight: bold; margin: 4px 0 0 0; }
+        
+        .bg-overall { background-color: rgba(5, 150, 105, 0.15); border-color: rgba(5, 150, 105, 0.3); color: #34d399; }
+        .bg-pending { background-color: rgba(225, 29, 72, 0.15); border-color: rgba(225, 29, 72, 0.3); color: #fb7185; }
+        .bg-blue-sec { background-color: rgba(2, 132, 199, 0.15); border-color: rgba(2, 132, 199, 0.3); color: #38bdf8; }
+        .bg-green-sec { background-color: rgba(22, 163, 74, 0.15); border-color: rgba(22, 163, 74, 0.3); color: #4ade80; }
+        .bg-amber-sec { background-color: rgba(217, 119, 6, 0.15); border-color: rgba(217, 119, 6, 0.3); color: #fbbf24; }
+        
+        .table-section { background-color: #1e293b; padding: 24px; border-radius: 16px; border: 1px solid #334155; }
+        h2 { color: #38bdf8; margin: 0 0 16px 0; font-size: 20px; }
+        .table-container { overflow-x: auto; border-radius: 12px; border: 1px solid #334155; }
+        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; }
+        th { background-color: #0f172a; color: #94a3b8; font-weight: bold; padding: 12px; border-bottom: 1px solid #334155; text-align: center; }
+        th.text-right, td.text-right { text-align: right; }
+        td { padding: 12px; border-bottom: 1px solid #334155/50; text-align: center; color: #e2e8f0; }
+        
+        .row-blue { border-right: 4px solid #38bdf8; background-color: rgba(56, 189, 248, 0.02); }
+        .row-green { border-right: 4px solid #4ade80; background-color: rgba(74, 222, 128, 0.02); }
+        .row-amber { border-right: 4px solid #fbbf24; background-color: rgba(251, 191, 36, 0.02); }
+        
+        .badge { background-color: #0f172a; color: #38bdf8; padding: 4px 8px; border-radius: 6px; border: 1px solid #334155; font-size: 11px; font-weight: 600; }
+        .branch-badge { color: #22d3ee; font-weight: bold; }
+        
+        .btn { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; border: none; cursor: pointer; transition: all 0.2s; }
+        .btn-success { background-color: #059669; color: white; }
+        .btn-danger { background-color: #475569; color: #cbd5e1; }
+        .btn:hover { transform: scale(1.05); }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 p-4 md:p-6">
+<body>
 
-    <div id="app" class="max-w-7xl mx-auto space-y-6" v-cloak>
+    <div class="max-w-7xl">
         
-        <!-- الهيدر الرئيسي -->
-        <header class="bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-700 text-center relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl"></div>
-            <h1 class="text-2xl md:text-3xl font-bold text-blue-400">نظام المتابعة التكتيكي الشامل - BodyFix</h1>
-            <p class="text-slate-400 mt-2 text-sm md:text-base">تحليل ومتابعة لحظية لجميع المهام بناءً على الشفتات والفروع</p>
+        <!-- الهيدر -->
+        <header>
+            <h1>نظام المتابعة التكتيكي الشامل - BodyFix</h1>
+            <p>لوحة تحكم تفاعلية فورية ومستقلة تماماً لمتابعة جميع المهام الـ 25 بالتفصيل</p>
         </header>
 
-        <!-- لوحة الفلاتر المزدوجة والمستقلة -->
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-800 p-5 rounded-2xl border border-slate-700">
-            <!-- فلتر الفروع الجغرافية -->
-            <div class="space-y-2">
-                <label class="block font-bold text-slate-300 text-sm md:text-base">📍 تصفية حسب الفرع:</label>
-                <select v-model="selectedBranch" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <!-- لوحة الفلاتر المزدوجة -->
+        <section class="filters-section">
+            <div class="filter-group">
+                <label>📍 تصفية حسب الفرع الجغرافي:</label>
+                <select id="branchFilter" onchange="renderDashboard()">
                     <option value="ALL">🏢 كل الفروع (الدقي + الهرم)</option>
                     <option value="الدقي">🏥 فرع الدقي لوحده</option>
                     <option value="الهرم">🏥 فرع الهرم لوحده</option>
                 </select>
             </div>
-
-            <!-- فلتر الموظفين والأعمدة الفردية -->
-            <div class="space-y-2">
-                <label class="block font-bold text-slate-300 text-sm md:text-base">👤 تصفية حسب الموظف المسؤول:</label>
-                <select v-model="selectedRole" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="filter-group">
+                <label>👤 تصفية حسب الموظف المسؤول (العمود الخاص بك):</label>
+                <select id="roleFilter" onchange="renderDashboard()">
                     <option value="ALL">📊 شاشة المشرف الكاملة (كل الموظفين)</option>
                     <option value="F">📋 العمود F: سكرتارية الشفت الصباحي (11 ص - 3 م)</option>
-                    <option value="H">📋 العمود H: مسؤول عيادة 1 (بعد 3 م - خط 010 والرجال)</option>
-                    <option value="J">📋 العمود J: مسؤول عيادة 2 (بعد 3 م - خط 011 والسيدات)</option>
-                    <option value="L">📋 العمود L: مشرف السكرتارية (مراقبة وجودة طوال اليوم)</option>
-                    <option value="N">📋 العمود N: مسؤول المراجعة والتقفيل المالي والطبّي</option>
+                    <option value="H">📋 العمود H: مسؤول عيادة 1 (بعد 3 م - الرجال وخط 010)</option>
+                    <option value="J">📋 العمود J: مسؤول عيادة 2 (بعد 3 م - السيدات وخط 011)</option>
+                    <option value="L">📋 العمود L: مشرف السكرتارية (مراقبة وجودة)</option>
+                    <option value="N">📋 العمود N: مسؤول المراجعة والتقفيل والماليات</option>
                 </select>
             </div>
         </section>
 
-        <!-- عدادات الأداء الرقمية (KPIs) اللحظية -->
-        <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <div class="bg-emerald-950/40 p-4 rounded-xl border border-emerald-500/30 text-center">
-                <p class="text-xs text-emerald-400 font-medium">نسبة الإنجاز للحالة الحالية</p>
-                <h3 class="text-2xl font-bold text-emerald-300 mt-1">{{ overallCompletion }}%</h3>
+        <!-- عدادات الأداء اللحظية (KPIs) -->
+        <section class="kpis-section">
+            <div class="kpi-card bg-overall">
+                <p class="kpi-title">نسبة الإنجاز الإجمالية</p>
+                <h3 class="kpi-value" id="overallKPI">0%</h3>
             </div>
-            <div class="bg-rose-950/40 p-4 rounded-xl border border-rose-500/30 text-center">
-                <p class="text-xs text-rose-400 font-medium">المهام المتبقية</p>
-                <h3 class="text-2xl font-bold text-rose-300 mt-1">{{ pendingCount }}</h3>
+            <div class="kpi-card bg-pending">
+                <p class="kpi-title">المهام المعلقة حالياً</p>
+                <h3 class="kpi-value" id="pendingKPI">0</h3>
             </div>
-            <div class="bg-blue-950/40 p-4 rounded-xl border border-blue-500/30 text-center">
-                <p class="text-xs text-blue-400 font-medium">بدء ونهاية اليوم 🟦</p>
-                <h3 class="text-xl font-bold text-blue-300 mt-1">{{ sectionCompletion('بدء ونهاية اليوم') }}%</h3>
+            <div class="kpi-card bg-blue-sec">
+                <p class="kpi-title">بدء ونهاية اليوم 🟦</p>
+                <h3 class="kpi-value" id="blueKPI">0%</h3>
             </div>
-            <div class="bg-green-950/40 p-4 rounded-xl border border-green-500/30 text-center">
-                <p class="text-xs text-green-400 font-medium">وسط اليوم 🟩</p>
-                <h3 class="text-xl font-bold text-green-300 mt-1">{{ sectionCompletion('وسط اليوم') }}%</h3>
+            <div class="kpi-card bg-green-sec">
+                <p class="kpi-title">وسط اليوم 🟩</p>
+                <h3 class="kpi-value" id="greenKPI">0%</h3>
             </div>
-            <div class="bg-amber-950/40 p-4 rounded-xl border border-amber-500/30 text-center col-span-2 md:col-span-1">
-                <p class="text-xs text-amber-400 font-medium">المراقبة والمراجعة 🟧</p>
-                <h3 class="text-xl font-bold text-amber-300 mt-1">{{ sectionCompletion('المراقبة والمراجعة') }}%</h3>
+            <div class="kpi-card bg-amber-sec">
+                <p class="kpi-title">المراقبة والمراجعة 🟧</p>
+                <h3 class="kpi-value" id="amberKPI">0%</h3>
             </div>
         </section>
 
         <!-- الجدول التفاعلي وحصر جميع مهام الصورة بالملي -->
-        <section class="bg-slate-800 p-6 rounded-2xl border border-slate-700 overflow-hidden">
-            <h2 class="text-xl font-bold text-blue-400 mb-4">📋 حصر قائمة المهام والـ Checklist اليومي الكامل</h2>
-            
-            <div class="overflow-x-auto rounded-xl border border-slate-700">
-                <table class="w-full text-right border-collapse text-xs md:text-sm">
+        <section class="table-section">
+            <h2>📋 حصر قائمة المهام والـ Checklist اليومي الكامل</h2>
+            <div class="table-container">
+                <table id="tasksTable">
                     <thead>
-                        <tr class="bg-slate-900 text-slate-300 font-bold border-b border-slate-700 text-center">
-                            <th class="p-3 text-right">التصنيف</th>
-                            <th class="p-3">الرنج الزمني</th>
-                            <th class="p-3 text-right">بيان المهمة اليومية كاملاً</th>
-                            <th class="p-3">التخصيص / الخط</th>
-                            <th class="p-3">الفرع</th>
-                            <th v-if="showCol('F')" class="p-3 bg-blue-900/40">الصباحي (F)</th>
-                            <th v-if="showCol('H')" class="p-3 bg-emerald-900/40">عيادة 1 (H)</th>
-                            <th v-if="showCol('J')" class="p-3 bg-teal-900/40">عيادة 2 (J)</th>
-                            <th v-if="showCol('L')" class="p-3 bg-amber-900/40">المشرف (L)</th>
-                            <th v-if="showCol('N')" class="p-3 bg-purple-900/40">المراجعة (N)</th>
+                        <tr id="tableHeader">
+                            <!-- الهيدر بيتغير ديناميكياً برضه -->
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-700/50">
-                        <tr v-for="task in filteredTasks" :key="task.globalIdx" :class="getRowClass(task.section)">
-                            <td class="p-3 font-bold whitespace-nowrap">{{ task.section }}</td>
-                            <td class="p-3 text-center text-slate-400 whitespace-nowrap">{{ task.time }}</td>
-                            <td class="p-3 text-slate-100 font-medium max-w-xs md:max-w-md break-words">{{ task.title }}</td>
-                            <td class="p-3 text-center"><span class="bg-slate-900/60 text-blue-300 px-2 py-0.5 rounded border border-slate-700">{{ task.detail }}</span></td>
-                            <td class="p-3 text-center font-bold text-cyan-400 whitespace-nowrap">{{ task.branch }}</td>
-                            
-                            <!-- الأعمدة التفاعلية الفردية للأفراد والمشرفين -->
-                            <td v-if="showCol('F')" class="p-3 text-center">
-                                <button v-if="task.cols.includes('F')" @click="toggleStatus(task.globalIdx, 'F')" :class="task.status.F ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-400'" class="px-2 py-1 rounded font-bold cursor-pointer transition-all">
-                                    {{ task.status.F ? '✓ مكتمل' : '❌ متبقي' }}
-                                </button>
-                                <span v-else class="text-slate-600">-</span>
-                            </td>
-                            <td v-if="showCol('H')" class="p-3 text-center">
-                                <button v-if="task.cols.includes('H')" @click="toggleStatus(task.globalIdx, 'H')" :class="task.status.H ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-400'" class="px-2 py-1 rounded font-bold cursor-pointer transition-all">
-                                    {{ task.status.H ? '✓ مكتمل' : '❌ متبقي' }}
-                                </button>
-                                <span v-else class="text-slate-600">-</span>
-                            </td>
-                            <td v-if="showCol('J')" class="p-3 text-center">
-                                <button v-if="task.cols.includes('J')" @click="toggleStatus(task.globalIdx, 'J')" :class="task.status.J ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-400'" class="px-2 py-1 rounded font-bold cursor-pointer transition-all">
-                                    {{ task.status.J ? '✓ مكتمل' : '❌ متبقي' }}
-                                </button>
-                                <span v-else class="text-slate-600">-</span>
-                            </td>
-                            <td v-if="showCol('L')" class="p-3 text-center">
-                                <button v-if="task.cols.includes('L')" @click="toggleStatus(task.globalIdx, 'L')" :class="task.status.L ? 'bg-amber-600 text-white' : 'bg-slate-700 text-slate-400'" class="px-2 py-1 rounded font-bold cursor-pointer transition-all">
-                                    {{ task.status.L ? '✓ تم' : '❌ مراقبة' }}
-                                </button>
-                                <span v-else class="text-slate-600">-</span>
-                            </td>
-                            <td v-if="showCol('N')" class="p-3 text-center">
-                                <button v-if="task.cols.includes('N')" @click="toggleStatus(task.globalIdx, 'N')" :class="task.status.N ? 'bg-purple-600 text-white' : 'bg-slate-700 text-slate-400'" class="px-2 py-1 rounded font-bold cursor-pointer transition-all">
-                                    {{ task.status.N ? '✓ مراجع' : '❌ تقفيل' }}
-                                </button>
-                                <span v-else class="text-slate-600">-</span>
-                            </td>
-                        </tr>
+                    <tbody id="tableBody">
+                        <!-- البيانات والصفوف هتنزل هنا جافا سكريبت فوراً -->
                     </tbody>
                 </table>
             </div>
@@ -146,125 +130,169 @@
     </div>
 
     <script>
-        const { createApp, ref, computed } = Vue;
+        // قاعدة البيانات الشاملة لجميع مهام صور عيادات BodyFix بالملي
+        const tasks = [
+            // ---- قسم بدء ونهاية اليوم 🟦 ----
+            { section: "بدء ونهاية اليوم", time: "11:00 - 12:00", title: "مهام بدء اليوم والأيام السابقة غير المنجزة", detail: "عام", branch: "الكل", cols: ['F'], status: { F: false } },
+            { section: "بدء ونهاية اليوم", time: "11:00 - 12:00", title: "تثبيت العيادات وتأكيد حجوزات الدكاترة", detail: "عام", branch: "الكل", cols: ['F'], status: { F: false } },
+            { section: "بدء ونهاية اليوم", time: "11:00 - 12:00", title: "مراجعة خط الواتساب والرد الفوري 010", detail: "خط 010", branch: "الكل", cols: ['F'], status: { F: false } },
+            { section: "بدء ونهاية اليوم", time: "11:00 - 12:00", title: "مراجعة خط الواتساب والرد الفوري 011", detail: "خط 011", branch: "الكل", cols: ['F'], status: { F: false } },
+            { section: "بدء ونهاية اليوم", time: "11:00 - 12:00", title: "مراجعة المكالمات الفائتة على جميع الخطوط", detail: "مكالمات فائتة", branch: "الكل", cols: ['F'], status: { F: false } },
+            
+            // ---- قسم وسط اليوم 🟩 (تأكيد ومتابعة المواعيد والتثبيتات) ----
+            { section: "وسط اليوم", time: "12:00 - 02:00", title: "تأكيد المواعيد غير المؤكدة لليوم - فرع الدقي", detail: "عيادة 1", branch: "الدقي", cols: ['F', 'H'], status: { F: false, H: false } },
+            { section: "وسط اليوم", time: "12:00 - 02:00", title: "تأكيد المواعيد غير المؤكدة لليوم - فرع الهرم", detail: "عيادة 2", branch: "الهرم", cols: ['F', 'J'], status: { F: false, J: false } },
+            
+            { section: "وسط اليوم", time: "12:00 - 02:00", title: "تسكين المواعيد غير المسكنة من قائمة الانتظار والـ follow up - رجال", detail: "Male", branch: "الكل", cols: ['F', 'H'], status: { F: false, H: false } },
+            { section: "وسط اليوم", time: "12:00 - 02:00", title: "تسكين المواعيد غير المسكنة من قائمة الانتظار والـ follow up - سيدات", detail: "Female", branch: "الكل", cols: ['F', 'J'], status: { F: false, J: false } },
+            
+            { section: "وسط اليوم", time: "12:00 - 02:00", title: "مراجعة شيت التثبيتات للمرضى الذين ينتهي تثبيتهم اليوم - فرع الدقي", detail: "حجز ومتابعة", branch: "الدقي", cols: ['H'], status: { H: false } },
+            { section: "وسط اليوم", time: "12:00 - 02:00", title: "مراجعة شيت التثبيتات للمرضى الذين ينتهي تثبيتهم اليوم - فرع الهرم", detail: "حجز ومتابعة", branch: "الهرم", cols: ['J'], status: { J: false } },
+            
+            { section: "وسط اليوم", time: "12:00 - 02:00", title: "حجز المواعيد غير المحجوزة للمرور بجدول اليوم وتكرارها - فرع الدقي", detail: "تكرار جدول", branch: "الدقي", cols: ['H'], status: { H: false } },
+            { section: "وسط اليوم", time: "12:00 - 02:00", title: "حجز المواعيد غير المحجوزة للمرور بجدول اليوم وتكرارها - فرع الهرم", detail: "تكرار جدول", branch: "الهرم", cols: ['J'], status: { J: false } },
+            
+            { section: "وسط اليوم", time: "03:00 - 08:00", title: "تأكيد مواعيد اليوم التالي بالكامل وضمان الداتا - فرع الدقي", detail: "عيادة 1", branch: "الدقي", cols: ['H'], status: { H: false } },
+            { section: "وسط اليوم", time: "03:00 - 08:00", title: "تأكيد مواعيد اليوم التالي بالكامل وضمان الداتا - فرع الهرم", detail: "عيادة 2", branch: "الهرم", cols: ['J'], status: { J: false } },
+            
+            { section: "وسط اليوم", time: "09:00 - 10:00", title: "تسكين مواعيد غير المسكنة من قائمة الانتظار والـ follow up لليوم التالي - رجال", detail: "Male", branch: "الكل", cols: ['H'], status: { H: false } },
+            { section: "وسط اليوم", time: "09:00 - 10:00", title: "تسكين مواعيد غير المسكنة من قائمة الانتظار والـ follow up لليوم التالي - سيدات", detail: "Female", branch: "الكل", cols: ['J'], status: { J: false } },
+            
+            { section: "وسط اليوم", time: "طوال اليوم", title: "متابعة الوصول للمرضى والترحيب وتحديث البيانات - فرع الدقي", detail: "عيادة 1", branch: "الدقي", cols: ['H', 'L'], status: { H: false, L: false } },
+            { section: "وسط اليوم", time: "طوال اليوم", title: "متابعة الوصول للمرضى والترحيب وتحديث البيانات - فرع الهرم", detail: "عيادة 2", branch: "الهرم", cols: ['J', 'L'], status: { J: false, L: false } },
+            
+            { section: "وسط اليوم", time: "طوال اليوم", title: "متابعة وردود خط الواتساب والاتصالات لـ خط 010 (الشفت المسائي)", detail: "خط 010", branch: "الكل", cols: ['H'], status: { H: false } },
+            { section: "وسط اليوم", time: "طوال اليوم", title: "متابعة وردود خط الواتساب والاتصالات لـ خط 011 (الشفت المسائي)", detail: "خط 011", branch: "الكل", cols: ['J'], status: { J: false } },
+            { section: "وسط اليوم", time: "طوال اليوم", title: "متابعة موبايل العيادة والرد التكتيكي على الاستفسارات", detail: "موبايل العيادة", branch: "الكل", cols: ['H', 'J'], status: { H: false, J: false } },
 
-        createApp({
-            setup() {
-                const selectedBranch = ref('ALL');
-                const selectedRole = ref('ALL');
+            // ---- مهام إنهاء الشفت 🟦 ----
+            { section: "بدء ونهاية اليوم", time: "10:00 - 11:00", title: "مراجعة المهام الإجمالية المقفلة وتسليم الحسابات", detail: "الجميع", branch: "الكل", cols: ['H', 'J', 'N'], status: { H: false, J: false, N: false } },
+            { section: "بدء ونهاية اليوم", time: "10:00 - 11:00", title: "مراجعة وتثبيت العيادات والملفات وجرد الخزينة اليومي للفروع", detail: "تقفيل خزينة", branch: "الكل", cols: ['H', 'J', 'N'], status: { H: false, J: false, N: false } },
 
-                const tasks = ref([
-                    // ---- قسم بدء ونهاية اليوم 🟦 ----
-                    { section: "بدء ونهاية اليوم", time: "11:00 - 12:00", title: "مهام بدء اليوم والأيام السابقة غير المنجزة", detail: "عام", branch: "الكل", cols: ['F'], status: { F: false } },
-                    { section: "بدء ونهاية اليوم", time: "11:00 - 12:00", title: "تثبيت العيادات وتأكيد حجوزات الدكاترة", detail: "عام", branch: "الكل", cols: ['F'], status: { F: false } },
-                    { section: "بدء ونهاية اليوم", time: "11:00 - 12:00", title: "مراجعة خط الواتساب والرد الفوري 010", detail: "خط 010", branch: "الكل", cols: ['F'], status: { F: false } },
-                    { section: "بدء ونهاية اليوم", time: "11:00 - 12:00", title: "مراجعة خط الواتساب والرد الفوري 011", detail: "خط 011", branch: "الكل", cols: ['F'], status: { F: false } },
-                    { section: "بدء ونهاية اليوم", time: "11:00 - 12:00", title: "مراجعة المكالمات الفائتة على جميع الخطوط", detail: "مكالمات فائتة", branch: "الكل", cols: ['F'], status: { F: false } },
-                    
-                    // ---- قسم وسط اليوم 🟩 ----
-                    { section: "وسط اليوم", time: "12:00 - 02:00", title: "تأكيد المواعيد غير المؤكدة لليوم - فرع الدقي", detail: "عيادة 1", branch: "الدقي", cols: ['F', 'H'], status: { F: false, H: false } },
-                    { section: "وسط اليوم", time: "12:00 - 02:00", title: "تأكيد المواعيد غير المؤكدة لليوم - فرع الهرم", detail: "عيادة 2", branch: "الهرم", cols: ['F', 'J'], status: { F: false, J: false } },
-                    
-                    { section: "وسط اليوم", time: "12:00 - 02:00", title: "تسكين المواعيد غير المسكنة من قائمة الانتظار والـ follow up - رجال", detail: "Male", branch: "الكل", cols: ['F', 'H'], status: { F: false, H: false } },
-                    { section: "وسط اليوم", time: "12:00 - 02:00", title: "تسكين المواعيد غير المسكنة من قائمة الانتظار والـ follow up - سيدات", detail: "Female", branch: "الكل", cols: ['F', 'J'], status: { F: false, J: false } },
-                    
-                    { section: "وسط اليوم", time: "12:00 - 02:00", title: "مراجعة شيت التثبيتات للمرضى الذين ينتهي تثبيتهم اليوم - فرع الدقي", detail: "حجز ومتابعة", branch: "الدقي", cols: ['H'], status: { H: false } },
-                    { section: "وسط اليوم", time: "12:00 - 02:00", title: "مراجعة شيت التثبيتات للمرضى الذين ينتهي تثبيتهم اليوم - فرع الهرم", detail: "حجز ومتابعة", branch: "الهرم", cols: ['J'], status: { J: false } },
-                    
-                    { section: "وسط اليوم", time: "12:00 - 02:00", title: "حجز المواعيد غير المحجوزة للمرور بجدول اليوم وتكرارها - فرع الدقي", detail: "تكرار جدول", branch: "الدقي", cols: ['H'], status: { H: false } },
-                    { section: "وسط اليوم", time: "12:00 - 02:00", title: "حجز المواعيد غير المحجوزة للمرور بجدول اليوم وتكرارها - فرع الهرم", detail: "تكرار جدول", branch: "الهرم", cols: ['J'], status: { J: false } },
-                    
-                    { section: "وسط اليوم", time: "03:00 - 08:00", title: "تأكيد مواعيد اليوم التالي بالكامل وضمان الداتا - فرع الدقي", detail: "عيادة 1", branch: "الدقي", cols: ['H'], status: { H: false } },
-                    { section: "وسط اليوم", time: "03:00 - 08:00", title: "تأكيد مواعيد اليوم التالي بالكامل وضمان الداتا - فرع الهرم", detail: "عيادة 2", branch: "الهرم", cols: ['J'], status: { J: false } },
-                    
-                    { section: "وسط اليوم", time: "09:00 - 10:00", title: "تسكين مواعيد غير المسكنة من قائمة الانتظار والـ follow up لليوم التالي - رجال", detail: "Male", branch: "الكل", cols: ['H'], status: { H: false } },
-                    { section: "وسط اليوم", time: "09:00 - 10:00", title: "تسكين مواعيد غير المسكنة من قائمة الانتظار والـ follow up لليوم التالي - سيدات", detail: "Female", branch: "الكل", cols: ['J'], status: { J: false } },
-                    
-                    { section: "وسط اليوم", time: "طوال اليوم", title: "متابعة الوصول للمرضى والترحيب وتحديث البيانات - فرع الدقي", detail: "عيادة 1", branch: "الدقي", cols: ['H', 'L'], status: { H: false, L: false } },
-                    { section: "وسط اليوم", time: "طوال اليوم", title: "متابعة الوصول للمرضى والترحيب وتحديث البيانات - فرع الهرم", detail: "عيادة 2", branch: "الهرم", cols: ['J', 'L'], status: { J: false, L: false } },
-                    
-                    { section: "وسط اليوم", time: "طوال اليوم", title: "متابعة وردود خط الواتساب والاتصالات لـ خط 010 (الشفت المسائي)", detail: "خط 010", branch: "الكل", cols: ['H'], status: { H: false } },
-                    { section: "وسط اليوم", time: "طوال اليوم", title: "متابعة وردود خط الواتساب والاتصالات لـ خط 011 (الشفت المسائي)", detail: "خط 011", branch: "الكل", cols: ['J'], status: { J: false } },
-                    { section: "وسط اليوم", time: "طوال اليوم", title: "متابعة موبايل العيادة والرد التكتيكي على الاستفسارات", detail: "موبايل العيادة", branch: "الكل", cols: ['H', 'J'], status: { H: false, J: false } },
+            // ---- قسم المراقبة والمراجعة 🟧 ----
+            { section: "المراقبة والمراجعة", time: "طوال اليوم", title: "مراقبة جودة مواعيد الاستقبال وضمان سرعة الخدمة وعدم الانتظار بالصالة والتعامل مع الاتصالات المتكررة والشكاوى", detail: "إشراف جودة", branch: "الكل", cols: ['L'], status: { L: false } },
+            { section: "المراقبة والمراجعة", time: "نهاية الشفت", title: "مراجعة وتحويل الحالات المكتملة على السستم ومطابقة الداتا والملفات والتقارير المالية والطبية المقفلة", detail: "تدقيق مالي وطبي", branch: "الكل", cols: ['N'], status: { N: false } }
+        ];
 
-                    // ---- مهام إنهاء الشفت 🟦 ----
-                    { section: "بدء ونهاية اليوم", time: "10:00 - 11:00", title: "مراجعة المهام الإجمالية المقفلة وتسليم الحسابات", detail: "الجميع", branch: "الكل", cols: ['H', 'J', 'N'], status: { H: false, J: false, N: false } },
-                    { section: "بدء ونهاية اليوم", time: "10:00 - 11:00", title: "مراجعة وتثبيت العيادات والملفات وجرد الخزينة اليومي للفروع", detail: "تقفيل خزينة", branch: "الكل", cols: ['H', 'J', 'N'], status: { H: false, J: false, N: false } },
+        // دالة تبديل حالة المهمة وتحديث الأرقام فوراً
+        function toggleStatus(index, col) {
+            tasks[index].status[col] = !tasks[index].status[col];
+            renderDashboard();
+        }
 
-                    // ---- قسم المراقبة والمراجعة 🟧 ----
-                    { section: "المراقبة والمراجعة", time: "طوال اليوم", title: "مراقبة جودة مواعيد الاستقبال وضمان سرعة الخدمة وعدم الانتظار بالصالة والتعامل مع الاتصالات المتكررة والشكاوى", detail: "إشراف جودة", branch: "الكل", cols: ['L'], status: { L: false } },
-                    { section: "المراقبة والمراجعة", time: "نهاية الشفت", title: "مراجعة وتحويل الحالات المكتملة على السستم ومطابقة الداتا والملفات والتقارير المالية والطبية المقفلة", detail: "تدقيق مالي وطبي", branch: "الكل", cols: ['N'], status: { N: false } }
-                ]);
+        // دالة بناء وعرض الداشبورد والجدول ديناميكياً
+        function renderDashboard() {
+            const branchFilter = document.getElementById('branchFilter').value;
+            const roleFilter = document.getElementById('roleFilter').value;
+            
+            const tableHeader = document.getElementById('tableHeader');
+            const tableBody = document.getElementById('tableBody');
+            
+            // 1. بناء الهيدر بناءً على الفلتر المختار
+            let headerHTML = `
+                <th class="p-3 text-right">التصنيف (A)</th>
+                <th class="p-3">الرنج الزمني (B)</th>
+                <th class="p-3 text-right">بيان المهمة اليومية كاملاً (C)</th>
+                <th class="p-3">التخصيص (D)</th>
+                <th class="p-3">الفرع (E)</th>
+            `;
+            if (roleFilter === 'ALL' || roleFilter === 'F') headerHTML += '<th class="p-3">الصباحي (F)</th>';
+            if (roleFilter === 'ALL' || roleFilter === 'H') headerHTML += '<th class="p-3">عيادة 1 (H)</th>';
+            if (roleFilter === 'ALL' || roleFilter === 'J') headerHTML += '<th class="p-3">عيادة 2 (J)</th>';
+            if (roleFilter === 'ALL' || roleFilter === 'L') headerHTML += '<th class="p-3">المشرف (L)</th>';
+            if (roleFilter === 'ALL' || roleFilter === 'N') headerHTML += '<th class="p-3">المراجعة (N)</th>';
+            tableHeader.innerHTML = headerHTML;
 
-                const filteredTasks = computed(() => {
-                    return tasks.value
-                        .map((t, idx) => ({ ...t, globalIdx: idx }))
-                        .filter(t => {
-                            const matchBranch = selectedBranch.value === 'ALL' || t.branch === 'الكل' || t.branch === selectedBranch.value;
-                            const matchRole = selectedRole.value === 'ALL' || t.cols.includes(selectedRole.value);
-                            return matchBranch && matchRole;
-                        });
-                });
+            // 2. تصفية وحساب الإحصائيات
+            let totalSlots = 0;
+            let completedSlots = 0;
+            let pendingSlots = 0;
+            
+            let secMetrics = { "بدء ونهاية اليوم": { total: 0, comp: 0 }, "وسط اليوم": { total: 0, comp: 0 }, "المراقبة والمراجعة": { total: 0, comp: 0 } };
 
-                const toggleStatus = (globalIdx, col) => {
-                    tasks.value[globalIdx].status[col] = !tasks.value[globalIdx].status[col];
-                };
+            let bodyHTML = '';
+            let hasData = false;
 
-                const showCol = (col) => {
-                    return selectedRole.value === 'ALL' || selectedRole.value === col;
-                };
+            tasks.forEach((task, index) => {
+                // شروط فلاتر الفروع والموظفين المزدوجة اللحظية
+                const matchBranch = branchFilter === 'ALL' || task.branch === 'الكل' || task.branch === branchFilter;
+                const matchRole = roleFilter === 'ALL' || task.cols.includes(roleFilter);
 
-                const overallCompletion = computed(() => {
-                    let total = 0, completed = 0;
-                    filteredTasks.value.forEach(t => {
-                        t.cols.forEach(c => {
-                            if (selectedRole.value === 'ALL' || selectedRole.value === c) {
-                                total++;
-                                if (t.status[c]) completed++;
-                            }
-                        });
+                if (matchBranch && matchRole) {
+                    hasData = true;
+                    
+                    // حساب الإحصائيات للخانات المعروضة فقط
+                    task.cols.forEach(c => {
+                        if (roleFilter === 'ALL' || roleFilter === c) {
+                            totalSlots++;
+                            if (task.status[c]) completedSlots++;
+                            else pendingSlots++;
+
+                            // حساب نسب الأقسام الثلاثة
+                            secMetrics[task.section].total++;
+                            if (task.status[c]) secMetrics[task.section].comp++;
+                        }
                     });
-                    return total === 0 ? 0 : Math.round((completed / total) * 100);
-                });
 
-                const pendingCount = computed(() => {
-                    let count = 0;
-                    filteredTasks.value.forEach(t => {
-                        t.cols.forEach(c => {
-                            if (selectedRole.value === 'ALL' || selectedRole.value === c) {
-                                if (!t.status[c]) count++;
-                            }
-                        });
-                    });
-                    return count;
-                });
+                    // تحديد لون الصف
+                    let rowClass = '';
+                    if (task.section === "بدء ونهاية اليوم") rowClass = 'row-blue';
+                    else if (task.section === "وسط اليوم") rowClass = 'row-green';
+                    else if (task.section === "المراقبة والمراجعة") rowClass = 'row-amber';
 
-                const sectionCompletion = (secName) => {
-                    let total = 0, completed = 0;
-                    filteredTasks.value.filter(t => t.section === secName).forEach(t => {
-                        t.cols.forEach(c => {
-                            if (selectedRole.value === 'ALL' || selectedRole.value === c) {
-                                total++;
-                                if (t.status[c]) completed++;
-                            }
-                        });
-                    });
-                    return total === 0 ? 0 : Math.round((completed / total) * 100);
-                });
+                    bodyHTML += `<tr class="${rowClass}">
+                        <td class="p-3 font-bold text-right whitespace-nowrap">${task.section}</td>
+                        <td class="p-3 text-slate-400 whitespace-nowrap">${task.time}</td>
+                        <td class="p-3 text-right text-slate-100 font-medium">${task.title}</td>
+                        <td class="p-3"><span class="badge">${task.detail}</span></td>
+                        <td class="p-3 font-bold branch-badge whitespace-nowrap">${task.branch}</td>
+                    `;
 
-                const getRowClass = (section) => {
-                    if (section === "بدء ونهاية اليوم") return "bg-blue-950/20 hover:bg-blue-900/30 border-r-4 border-blue-500";
-                    if (section === "وسط اليوم") return "bg-emerald-950/10 hover:bg-emerald-900/20 border-r-4 border-emerald-500";
-                    if (section === "المراقبة والمراجعة") return "bg-amber-950/20 hover:bg-amber-900/30 border-r-4 border-amber-500";
-                    return "";
-                };
+                    // إضافة أزرار التحكم الفردية لكل عموظف حسب الفلتر المختار
+                    if (roleFilter === 'ALL' || roleFilter === 'F') {
+                        bodyHTML += `<td class="p-3">${task.cols.includes('F') ? `<button class="btn ${task.status.F ? 'btn-success' : 'btn-danger'}" onclick="toggleStatus(${index}, 'F')">${task.status.F ? '✓ مكتمل' : '❌ متبقي'}</button>` : '<span style="color:#475569">-</span>'}</td>`;
+                    }
+                    if (roleFilter === 'ALL' || roleFilter === 'H') {
+                        bodyHTML += `<td class="p-3">${task.cols.includes('H') ? `<button class="btn ${task.status.H ? 'btn-success' : 'btn-danger'}" onclick="toggleStatus(${index}, 'H')">${task.status.H ? '✓ مكتمل' : '❌ متبقي'}</button>` : '<span style="color:#475569">-</span>'}</td>`;
+                    }
+                    if (roleFilter === 'ALL' || roleFilter === 'J') {
+                        bodyHTML += `<td class="p-3">${task.cols.includes('J') ? `<button class="btn ${task.status.J ? 'btn-success' : 'btn-danger'}" onclick="toggleStatus(${index}, 'J')">${task.status.J ? '✓ مكتمل' : '❌ متبقي'}</button>` : '<span style="color:#475569">-</span>'}</td>`;
+                    }
+                    if (roleFilter === 'ALL' || roleFilter === 'L') {
+                        bodyHTML += `<td class="p-3">${task.cols.includes('L') ? `<button class="btn ${task.status.L ? 'btn-success' : 'btn-danger'}" onclick="toggleStatus(${index}, 'L')">${task.status.L ? '✓ تم' : '❌ مراقبة'}</button>` : '<span style="color:#475569">-</span>'}</td>`;
+                    }
+                    if (roleFilter === 'ALL' || roleFilter === 'N') {
+                        bodyHTML += `<td class="p-3">${task.cols.includes('N') ? `<button class="btn ${task.status.N ? 'btn-success' : 'btn-danger'}" onclick="toggleStatus(${index}, 'N')">${task.status.N ? '✓ مراجع' : '❌ تقفيل'}</button>` : '<span style="color:#475569">-</span>'}</td>`;
+                    }
 
-                return {
-                    selectedBranch,
-                    selectedRole,
-                    filteredTasks,
-                    toggleStatus,
-                    showCol,
-                    overallCompletion,
-                    pendingCount,
-                    sectionComplet
+                    bodyHTML += '</tr>';
+                }
+            });
+
+            if (!hasData) {
+                bodyHTML = `<tr><td colspan="10" style="padding: 32px; color: #475569; text-align: center; font-weight: bold;">مفيش أي مهام مطابقة للفلاتر الحالية.</td></tr>`;
+            }
+            tableBody.innerHTML = bodyHTML;
+
+            // 3. تحديث كروت الـ KPIs رقمياً بالمعادلات اللحظية
+            const overallPct = totalSlots === 0 ? 0 : Math.round((completedSlots / totalSlots) * 100);
+            document.getElementById('overallKPI').innerText = overallPct + '%';
+            document.getElementById('pendingKPI').innerText = pendingSlots;
+
+            const bluePct = secMetrics["بدء ونهاية اليوم"].total === 0 ? 0 : Math.round((secMetrics["بدء ونهاية اليوم"].comp / secMetrics["بدء ونهاية اليوم"].total) * 100);
+            document.getElementById('blueKPI').innerText = bluePct + '%';
+
+            const greenPct = secMetrics["وسط اليوم"].total === 0 ? 0 : Math.round((secMetrics["وسط اليوم"].comp / secMetrics["وسط اليوم"].total) * 100);
+            document.getElementById('greenKPI').innerText = greenPct + '%';
+
+            const amberPct = secMetrics["المراقبة والمراجعة"].total === 0 ? 0 : Math.round((secMetrics["المراقبة والمراجعة"].comp / secMetrics["المراقبة والمراجعة"].total) * 100);
+            document.getElementById('amberKPI').innerText = amberPct + '%';
+        }
+
+        // تشغيل الشاشة والعدادات فور فتح الملف لأول مرة
+        window.onload = function() {
+            renderDashboard();
+        };
+    </script>
+</body>
+</html>

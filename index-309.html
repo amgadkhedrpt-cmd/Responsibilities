@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم مهام سكرتارية BodyFix الشاملة</title>
+    
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f1f5f9; padding: 20px; margin: 0; direction: rtl; }
+        .max-w-7xl { max-w: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+        header { background-color: #1e293b; padding: 24px; border: 1px solid #334155; text-align: center; border-radius: 16px; }
+        h1 { color: #38bdf8; margin: 0; font-size: 26px; font-weight: bold; }
+        header p { color: #94a3b8; margin: 8px 0 0 0; font-size: 14px; }
+        
+        .filters-section { display: grid; grid-template-columns: 1fr; gap: 16px; background-color: #1e293b; padding: 20px; border-radius: 16px; border: 1px solid #334155; }
+        @media (min-width: 768px) { .filters-section { grid-template-columns: 1fr 1fr; } }
+        .filter-group { display: flex; flex-direction: column; gap: 8px; }
+        label { font-weight: bold; color: #cbd5e1; font-size: 14px; }
+        select, input[type="text"] { width: 100%; padding: 12px; background-color: #0f172a; border: 1px solid #475569; border-radius: 12px; color: #f1f5f9; font-size: 14px; outline: none; cursor: pointer; box-sizing: border-box; }
+        select:focus, input[type="text"]:focus { border-color: #38bdf8; }
+        
+        .absence-section { background-color: #1e293b; padding: 16px; border-radius: 16px; border: 1px solid #334155; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; }
+        .absence-title { font-weight: bold; color: #f43f5e; font-size: 14px; }
+        .checkbox-group { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; }
+        .checkbox-group input { width: 18px; height: 18px; cursor: pointer; }
+
+        .day-section { background-color: #1e293b; padding: 16px; border-radius: 16px; border: 1px solid #334155; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; }
+        .day-section .day-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .day-section select, .day-section input[type="date"] { min-width: 160px; width: auto; }
+        .day-note { color: #94a3b8; font-size: 12px; }
+
+        .admin-bar { background-color: #1e293b; padding: 16px; border-radius: 16px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+        .admin-status { font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+        
+        .admin-form-panel { background-color: #1e293b; padding: 24px; border-radius: 16px; border: 2px dashed #38bdf8; display: none; flex-direction: column; gap: 16px; }
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        @media (min-width: 768px) { .form-grid { grid-template-columns: repeat(3, 1fr); } }
+
+        .kpis-section { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        @media (min-width: 768px) { .kpis-section { grid-template-columns: repeat(3, 1fr); } @media (min-width: 1024px) { .kpis-section { grid-template-columns: repeat(5, 1fr); } } }
+        .kpi-card { padding: 16px; border-radius: 12px; text-align: center; border: 1px solid transparent; }
+        .kpi-title { font-size: 12px; font-weight: 500; margin: 0; }
+        .kpi-value { font-size: 24px; font-weight: bold; margin: 4px 0 0 0; }
+        
+        .bg-overall { background-color: rgba(5, 150, 105, 0.15); border-color: rgba(5, 150, 105, 0.3); color: #34d399; }
+        .bg-pending { background-color: rgba(225, 29, 72, 0.15); border-color: rgba(225, 29, 72, 0.3); color: #fb7185; }
+        .bg-blue-sec { background-color: rgba(2, 132, 199, 0.15); border-color: rgba(2, 132, 199, 0.3); color: #38bdf8; }
+        .bg-green-sec { background-color: rgba(22, 163, 74, 0.15); border-color: rgba(22, 163, 74, 0.3); color: #4ade80; }
+        .bg-amber-sec { background-color: rgba(217, 119, 6, 0.15); border-color: rgba(217, 119, 6, 0.3); color: #fbbf24; }
+        
+        .table-section { background-color: #1e293b; padding: 24px; border-radius: 16px; border: 1px solid #334155; }
+        h2 { color: #38bdf8; margin: 0 0 16px 0; font-size: 20px; }
+
+        .section-header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+        .section-header-row h2 { margin: 0; }
+
+        .connection-status { font-size: 12px; font-weight: bold; }
+
+        .shift-banner { background-color: rgba(244, 63, 94, 0.12); border: 1px solid rgba(244, 63, 94, 0.4); color: #fb7185; padding: 12px 16px; border-radius: 12px; font-weight: bold; text-align: center; }
+
+        .activity-log { max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+        .log-entry { background-color: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #cbd5e1; }
+        .log-time { color: #38bdf8; font-weight: bold; margin-left: 8px; }
+
+        .table-container { overflow-x: auto; border-radius: 12px; border: 1px solid #334155; }
+        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; }
+        th { background-color: #0f172a; color: #94a3b8; font-weight: bold; padding: 12px; border-bottom: 1px solid #334155; }
+        td { padding: 10px; border-bottom: 1px solid rgba(51, 65, 85, 0.5); color: #e2e8f0; }
+
+        /* ===================== لوحة الموظفين (Kanban Board) ===================== */
+        .board { display: flex; gap: 16px; align-items: flex-start; overflow-x: auto; padding-bottom: 12px; }
+        .column { background-color: #0f172a; border: 1px solid #334155; border-radius: 12px; min-width: 270px; flex: 1 1 270px; max-width: 380px; display: flex; flex-direction: column; }
+        .column-header { padding: 12px; background-color: rgba(56,189,248,0.08); border-radius: 12px 12px 0 0; border-bottom: 2px solid #38bdf8; text-align: center; }
+        .column-header .col-title { color: #38bdf8; font-weight: bold; font-size: 14px; }
+        .column-header .column-count { color: #94a3b8; font-size: 11px; margin-top: 4px; }
+        .col-name-input { margin-top: 8px; width: 100%; padding: 8px; background-color: #0f172a; border: 1px solid #475569; border-radius: 8px; color: #f1f5f9; font-size: 12px; text-align: center; box-sizing: border-box; }
+        .col-name-input::placeholder { color: #64748b; }
+        .col-name-input:focus { border-color: #38bdf8; outline: none; }
+        .column-body { padding: 10px; display: flex; flex-direction: column; gap: 10px; min-height: 140px; flex: 1; transition: background-color 0.15s; }
+        .column-body.drag-over { background-color: rgba(56,189,248,0.07); border: 1px dashed #38bdf8; border-radius: 8px; }
+        .empty-column { color: #64748b; font-size: 12px; text-align: center; padding: 20px 8px; }
+
+        .task-card { background-color: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 10px; cursor: grab; }
+        .task-card:active { cursor: grabbing; }
+        .task-card.dragging { opacity: 0.35; }
+        .task-card.card-start { border-right: 4px solid #38bdf8; }
+        .task-card.card-during { border-right: 4px solid #4ade80; }
+        .task-card.card-end { border-right: 4px solid #f43f5e; }
+        .task-card.overdue { border: 1px solid #f43f5e; animation: pulseOverdue 2s infinite; }
+        @keyframes pulseOverdue {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.35); }
+            50% { box-shadow: 0 0 0 5px rgba(244, 63, 94, 0.12); }
+        }
+        .task-card-section { font-size: 11px; font-weight: bold; color: #94a3b8; margin-bottom: 6px; }
+        .task-card-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 6px; }
+        .drag-handle { cursor: grab; color: #94a3b8; font-size: 11px; padding: 3px 8px; border: 1px solid #334155; border-radius: 6px; user-select: none; background-color: #0f172a; white-space: nowrap; }
+        .drag-handle:active { cursor: grabbing; }
+        .task-card-badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+        .task-card-footer { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+
+        .editable-task-area { background: transparent; border: 1px solid transparent; color: #f1f5f9; width: 100%; padding: 6px; font-size: 13px; text-align: right; font-weight: 500; outline: none; border-radius: 6px; resize: none; overflow: hidden; display: block; box-sizing: border-box; font-family: inherit; line-height: 1.6; }
+        .editable-task-area.admin-active { border-bottom: 1px dashed #38bdf8; background-color: rgba(56, 189, 248, 0.03); }
+        .editable-task-area.admin-active:focus { background-color: #0f172a; border-color: #38bdf8; }
+        
+        .badge { background-color: #0f172a; color: #94a3b8; padding: 4px 8px; border-radius: 6px; border: 1px solid #334155; font-size: 11px; font-weight: 600; }
+        .badge-branch { color: #22d3ee; border-color: rgba(34, 211, 238, 0.3); background-color: rgba(34, 211, 238, 0.05); }
+        .badge-transfer { color: #fbbf24; border-color: rgba(251, 191, 36, 0.3); background-color: rgba(251, 191, 36, 0.1); font-weight: bold; }
+        .badge-danger-transfer { color: #f43f5e; border-color: rgba(244, 63, 94, 0.3); background-color: rgba(244, 63, 94, 0.1); font-weight: bold; }
+        .badge-manual { color: #c084fc; border-color: rgba(192, 132, 252, 0.35); background-color: rgba(192, 132, 252, 0.1); font-weight: bold; }
+        
+        .btn { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; border: none; cursor: pointer; transition: all 0.2s; min-width: 90px; }
+        .btn-success { background-color: #059669; color: white; }
+        .btn-danger { background-color: #f43f5e; color: white; }
+        .btn-slate { background-color: #475569; color: #cbd5e1; }
+        .btn-warning { background-color: #ea580c; color: white; }
+        .btn-info { background-color: #0284c7; color: white; }
+        .btn:hover { transform: scale(1.05); }
+        .btn-small { min-width: auto; padding: 4px 8px; font-size: 11px; }
+    </style>
+</head>
+<body>
+
+    <div class="max-w-7xl">
+        
+        <header>
+            <h1>نظام المتابعة والتفتيش التفاعلي - BodyFix</h1>
+            <p>لوحة التحكم الشاملة لفرعي (الدقي والهرم) - عرض الموظفين جنباً إلى جنب مع إمكانية سحب وإفلات المهام بينهم، وجدول مستقل قابل للتعديل لكل يوم</p>
+        </header>
+
+        <section class="admin-bar">
+            <div class="admin-status" id="adminStatusText">
+                <span style="color: #f43f5e; font-size: 18px;">🔒</span> 
+                <span style="color: #94a3b8;">وضع الموظف (عرض وتنفيذ الحالات فقط)</span>
+            </div>
+            <div class="connection-status" id="connectionStatus"></div>
+            <div>
+                <button class="btn btn-warning" id="adminToggleBtn" onclick="handleAdminAuth()">🔓 فتح لوحة التحكم الإدارية</button>
+            </div>
+        </section>
+
+        <section class="admin-form-panel" id="adminFormPanel">
+            <h3 style="margin: 0 0 16px 0; color: #38bdf8; font-size: 16px;">➕ إضافة مهمة تكتيكية جديدة للمنظومة (تُضاف لكل أيام الأسبوع):</h3>
+            <div class="form-grid">
+                <div class="filter-group">
+                    <label>👤 المكلف بالمهمة الأصلي:</label>
+                    <select id="newTaskRole">
+                        <option value="F">سكرتارية الشيفت الصباحي (F)</option>
+                        <option value="H">سكرتارية عيادة واحد (H)</option>
+                        <option value="J">سكرتارية عيادة اثنين (J)</option>
+                        <option value="L">مشرف السكرتارية (L)</option>
+                        <option value="DOKKI_STAFF">سكرتارية الدقي</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>⏱️ القسم الزمني للمهمة:</label>
+                    <select id="newTaskSection">
+                        <option value="START">في بدايه الشيفت 🟦</option>
+                        <option value="DURING">في خلال الشفت 🟩</option>
+                        <option value="END">في نهايه الشفت 🟥</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>🏥 الفرع الجغرافي المستهدف:</label>
+                    <select id="newTaskBranch">
+                        <option value="الهرم">فرع الهرم</option>
+                        <option value="الدقي">فرع الدقي</option>
+                        <option value="الكل">الكل (الفروع المشتركة)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-group" style="margin-top: 12px;">
+                <label>📝 نص ومضمون المهمة اليومية كاملاً:</label>
+                <input type="text" id="newTaskTitle" placeholder="اكتب هنا بيان المهمة بالصيغة المطلوبة بالظبط...">
+            </div>
+            <div style="margin-top: 8px; text-align: left;">
+                <button class="btn btn-success" onclick="addNewTask()">حفظ وإدراج المهمة فوراً</button>
+            </div>
+        </section>
+
+        <section class="day-section">
+            <div class="day-controls">
+                <label style="margin: 0;">📅 اختر تاريخ الجدول:</label>
+                <input type="date" id="dateSelector" onchange="changeDate(this.value)">
+                <span class="badge" id="dayNameLabel"></span>
+                <button class="btn btn-info" onclick="resetDaySchedule()">🔄 إعادة هذا التاريخ للجدول الأساسي</button>
+            </div>
+            <div class="day-controls">
+                <label style="margin: 0;">⏰ موعد نهاية الشيفت:</label>
+                <input type="time" id="shiftEndTime" onchange="saveShiftEndTime()">
+            </div>
+            <div class="day-note">الجدول الأساسي ثابت كما هو دائماً، وكل تاريخ (يوم) له نسخة مستقلة محفوظة من حالة الإنجاز، توزيع المهام، الغيابات، وأسماء السكرتارية، ولا تتأثر بباقي الأيام أو بالجدول الأساسي.</div>
+        </section>
+
+        <section class="filters-section">
+            <div class="filter-group">
+                <label>📍 عرض فرع محدد أو كل الفروع:</label>
+                <select id="branchFilter" onchange="renderDashboard()">
+                    <option value="ALL">🏢 كل فروع العيادات (الدقي + الهرم)</option>
+                    <option value="الدقي">🏥 فرع الدقي</option>
+                    <option value="الهرم">🏥 فرع الهرم</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>👤 عرض الموظف المسؤول (تصفية لعمودك الوظيفي):</label>
+                <select id="roleFilter" onchange="renderDashboard()">
+                    <option value="ALL">📊 شاشة الإدارة والمشرف الكاملة (كل الموظفين)</option>
+                    <option value="F">📋 سكرتارية الشيفت الصباحي</option>
+                    <option value="H">📋 سكرتارية عيادة واحد</option>
+                    <option value="J">📋 سكرتارية عيادة اثنين</option>
+                    <option value="L">📋 مشرف السكرتارية</option>
+                    <option value="DOKKI_STAFF">📋 سكرتارية الدقي</option>
+                </select>
+            </div>
+        </section>
+
+        <section class="absence-section">
+            <div class="absence-title">⚠️ تسجيل غياب أي موظف اليوم (توجيه ودمج فوري مع تجميع المتشابه):</div>
+            <label class="checkbox-group">
+                <input type="checkbox" id="absentF" onchange="onAbsenceChange()"> غياب الصباحي (F)
+            </label>
+            <label class="checkbox-group">
+                <input type="checkbox" id="absentH" onchange="onAbsenceChange()"> غياب عيادة 1 (H)
+            </label>
+            <label class="checkbox-group">
+                <input type="checkbox" id="absentJ" onchange="onAbsenceChange()"> غياب عيادة 2 (J)
+            </label>
+        </section>
+
+        <section class="kpis-section">
+            <div class="kpi-card bg-overall">
+                <p class="kpi-title">نسبة الإنجاز (للفلتر الحالي)</p>
+                <h3 class="kpi-value" id="overallKPI">0%</h3>
+            </div>
+            <div class="kpi-card bg-pending">
+                <p class="kpi-title">المهام المتبقية</p>
+                <h3 class="kpi-value" id="pendingKPI">0</h3>
+            </div>
+            <div class="kpi-card bg-blue-sec">
+                <p class="kpi-title">في بدايه الشيفت 🟦</p>
+                <h3 class="kpi-value" id="startKPI">0%</h3>
+            </div>
+            <div class="kpi-card bg-green-sec">
+                <p class="kpi-title">في خلال الشيفت 🟩</p>
+                <h3 class="kpi-value" id="duringKPI">0%</h3>
+            </div>
+            <div class="kpi-card bg-amber-sec">
+                <p class="kpi-title">في نهايه الشفت 🟥</p>
+                <h3 class="kpi-value" id="endKPI">0%</h3>
+            </div>
+        </section>
+
+        <section class="table-section">
+            <div class="section-header-row">
+                <h2>📋 لوحة المهام اليومية لكل موظف (اسحب المهمة من مقبض "⠿ اسحب للنقل" وأفلتها في عمود موظف آخر لنقلها)</h2>
+                <button class="btn btn-info" onclick="exportToExcel()">📤 تصدير جدول اليوم Excel</button>
+            </div>
+            <div class="shift-banner" id="shiftBanner" style="display:none; margin-bottom: 16px;"></div>
+            <div class="board" id="dashboardBoard">
+                <div class="empty-column" style="padding: 40px; width: 100%;">⏳ جاري تحميل الجدول...</div>
+            </div>
+        </section>
+
+        <section class="table-section">
+            <h2>🕒 سجل العمليات لهذا اليوم</h2>
+            <div class="activity-log" id="activityLog"></div>
+        </section>
+
+        <section class="table-section">
+            <h2>📊 تقرير الأداء حسب اسم السكرتارية (لفترة زمنية)</h2>
+            <div class="filters-section" style="margin-bottom: 16px;">
+                <div class="filter-group">
+                    <label>📅 من تاريخ:</label>
+                    <input type="date" id="reportFrom">
+                </div>
+                <div class="filter-group">
+                    <label>📅 إلى تاريخ:</label>
+                    <input type="date" id="reportTo">
+                </div>
+            </div>
+            <div style="text-align: left; margin-bottom: 16px;">
+                <button class="btn btn-success" onclick="generateReport()">📈 إنشاء التقرير</button>
+            </div>
+            <div id="reportResult"></div>
+        </section>
+
+    </div>
+
+    <!-- مزامنة مشتركة بين الأجهزة (Firebase Realtime Database) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <!-- تصدير Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <script>
+        const SEC_START = "في بدايه الشيفت";
+        const SEC_DURING = "في خلال الشيفت";
+        const SEC_END = "في نهايه الشفت";
+
+        const SECTION_ICON = { [SEC_START]: '🟦', [SEC_DURING]: '🟩', [SEC_END]: '🟥' };
+        const SECTION_CLASS = { [SEC_START]: 'card-start', [SEC_DURING]: 'card-during', [SEC_END]: 'card-end' };
+
+        let isAdminAuthenticated = false;
+        let taskIdCounter = 100;
+
+        const roleLabels = { 
+            'F': 'سكرتارية الشيفت الصباحي', 
+            'H': 'سكرتارية عيادة واحد', 
+            'J': 'سكرتارية عيادة اثنين', 
+            'L': 'مشرف السكرتارية', 
+            'DOKKI_STAFF': 'سكرتارية الدقي'
+        };
+
+        const COLUMN_ORDER = ['F', 'H', 'J', 'L', 'DOKKI_STAFF'];
+
+        // ==================== المزامنة المشتركة (Firebase Realtime Database) - اختياري ====================
+        // لتفعيل المزامنة بين كل الأجهزة عبر Firebase: أنشئ مشروع Firebase مجاني، فعّل Realtime Database،
+        // وانسخ بيانات الإعداد (Config) من إعدادات المشروع وضعها بدل القيم التالية.
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID"
+        };
+
+        const USE_FIREBASE = !!(firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY" && typeof firebase !== 'undefined');
+        let db = null;
+        if (USE_FIREBASE) {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+        }
+
+        // ==================== المزامنة المشتركة (JSONBin.io) - أسهل في الإعداد ====================
+        // خطوات التفعيل:
+        // 1) سجّل حساب مجاني على jsonbin.io
+        // 2) من صفحة "API Keys" انسخ المفتاح (X-MASTER-KEY) وضعه في JSONBIN_API_KEY
+        // 3) من لوحة التحكم اضغط "Create Bin" وضع محتواه {} ثم احفظ، وانسخ الـ Bin ID من الرابط
+        //    وضعه في JSONBIN_INDEX_BIN_ID (هذا البن سيُستخدم كفهرس لكل الأيام تلقائيًا)
+        const JSONBIN_API_KEY = "$2a$10$SfisCO9dSpvnVCS7TlSPU.CI9dk2mC1QF8T9TCyCZWxslLJ6yyDIm";
+        const JSONBIN_INDEX_BIN_ID = "6a2b8613da38895dfeb27f64";
+        const JSONBIN_BASE = "https://api.jsonbin.io/v3/b";
+        const JSONBIN_POLL_MS = 20000; // كل 20 ثانية
+
+        const USE_JSONBIN = !!(JSONBIN_API_KEY && JSONBIN_API_KEY !== "YOUR_JSONBIN_API_KEY" && JSONBIN_INDEX_BIN_ID && JSONBIN_INDEX_BIN_ID !== "YOUR_JSONBIN_INDEX_BIN_ID");
+
+        async function jsonbinGet(binId) {
+            const res = await fetch(`${JSONBIN_BASE}/${binId}/latest`, {
+                headers: { 'X-Master-Key': JSONBIN_API_KEY }
+            });
+            if (!res.ok) throw new Error('jsonbin get failed');
+            const data = await res.json();
+            return data.record;
+        }
+
+        async function jsonbinPut(binId, record) {
+            const res = await fetch(`${JSONBIN_BASE}/${binId}`, {
+                method: 'PUT',
+                headers: { 'X-Master-Key': JSONBIN_API_KEY, 'Content-Type': 'application/json' },
+                body: JSON.stringify(record)
+            });
+            if (!res.ok) throw new Error('jsonbin put failed');
+            return (await res.json()).record;
+        }
+
+        async function jsonbinCreate(record, name) {
+            const res = await fetch(JSONBIN_BASE, {
+                method: 'POST',
+                headers: { 'X-Master-Key': JSONBIN_API_KEY, 'Content-Type': 'application/json', 'X-Bin-Name': name },
+                body: JSON.stringify(record)
+            });
+            if (!res.ok) throw new Error('jsonbin create failed');
+            const data = await res.json();
+            return data.metadata.id;
+        }
+
+        let binIndex = null; // { 'YYYY-MM-DD': binId }
+
+        async function loadBinIndex() {
+            if (binIndex) return binIndex;
+            try {
+                binIndex = await jsonbinGet(JSONBIN_INDEX_BIN_ID) || {};
+            } catch (e) {
+                binIndex = {};
+            }
+            return binIndex;
+        }
+
+        async function saveBinIndex() {
+            try { await jsonbinPut(JSONBIN_INDEX_BIN_ID, binIndex); } catch (e) {}
+        }
+
+        // يجلب نسخة اليوم المحفوظة على JSONBin ويحدّث الواجهة لو فيه فرق عن النسخة المحلية
+        async function syncFromJsonBin(dateStr) {
+            if (!USE_JSONBIN) return;
+            try {
+                const index = await loadBinIndex();
+                const binId = index[dateStr];
+                if (!binId) return; // لا يوجد بيانات محفوظة على السحابة لهذا اليوم بعد
+
+                const remote = await jsonbinGet(binId);
+
+                // لا تستبدل البيانات أثناء كتابة المستخدم في حقل نصي
+                const active = document.activeElement;
+                const isEditing = active && (active.tagName === 'TEXTAREA' || (active.tagName === 'INPUT' && active.type === 'text'));
+                if (isEditing) return;
+
+                const remoteSchedule = {
+                    tasks: remote.tasks || [],
+                    names: remote.names || {},
+                    absences: remote.absences || { F: false, H: false, J: false }
+                };
+
+                const localStr = JSON.stringify(dailySchedules[dateStr] || {});
+                if (JSON.stringify(remoteSchedule) !== localStr) {
+                    dailySchedules[dateStr] = remoteSchedule;
+                    syncDaySchedule(dateStr);
+                    try { localStorage.setItem('bodyfix_schedule_' + dateStr, JSON.stringify(dailySchedules[dateStr])); } catch (e) {}
+                }
+
+                if (remote.log) {
+                    dailyLogs[dateStr] = remote.log;
+                    try { localStorage.setItem('bodyfix_log_' + dateStr, JSON.stringify(dailyLogs[dateStr])); } catch (e) {}
+                }
+
+                if (dateStr === selectedDate) {
+                    applyAbsencesToCheckboxes(dateStr);
+                    renderDashboard();
+                    renderActivityLog();
+                }
+            } catch (e) {}
+        }
+
+        // يرفع نسخة اليوم الحالية (المهام + الأسماء + الغيابات + السجل) إلى JSONBin
+        async function pushToJsonBin(dateStr) {
+            if (!USE_JSONBIN) return;
+            if (!dailySchedules[dateStr]) return;
+            try {
+                const index = await loadBinIndex();
+                const record = {
+                    tasks: dailySchedules[dateStr].tasks,
+                    names: dailySchedules[dateStr].names,
+                    absences: dailySchedules[dateStr].absences,
+                    log: dailyLogs[dateStr] || []
+                };
+                let binId = index[dateStr];
+                if (!binId) {
+                    binId = await jsonbinCreate(record, `bodyfix-${dateStr}`);
+                    index[dateStr] = binId;
+                    await saveBinIndex();
+                } else {
+                    await jsonbinPut(binId, record);
+                }
+            } catch (e) {}
+        }
+
+        let jsonbinPollHandle = null;
+        function startJsonBinPolling() {
+            if (!USE_JSONBIN) return;
+            if (jsonbinPollHandle) clearInterval(jsonbinPollHandle);
+            jsonbinPollHandle = setInterval(() => syncFromJsonBin(selectedDate), JSONBIN_POLL_MS);
+        }
+
+        function updateConnectionStatus() {
+            const el = document.getElementById('connectionStatus');
+            if (!el) return;
+            if (USE_FIREBASE) {
+                el.innerHTML = `<span style="color:#34d399;">🟢 متصل بقاعدة بيانات مشتركة - Firebase (تحديثات لحظية على كل الأجهزة)</span>`;
+            } else if (USE_JSONBIN) {
+                el.innerHTML = `<span style="color:#34d399;">🟢 متصل بقاعدة بيانات مشتركة - JSONBin (مزامنة تلقائية كل 20 ثانية بين كل الأجهزة)</span>`;
+            } else {
+                el.innerHTML = `<span style="color:#fbbf24;">🟡 وضع محلي فقط - البيانات محفوظة على هذا الجهاز/المتصفح فقط</span>`;
+            }
+        }
+
+        const ARABIC_DAY_NAMES = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+        function getTodayDateStr() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function formatDate(d) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        function enumerateDates(fromStr, toStr) {
+            const dates = [];
+            let cur = new Date(fromStr + 'T00:00:00');
+            const end = new Date(toStr + 'T00:00:00');
+            while (cur <= end) {
+                dates.push(formatDate(cur));
+                cur.setDate(cur.getDate() + 1);
+            }
+            return dates;
+        }
+
+        function getDayNameFromDate(dateStr) {
+            const d = new Date(dateStr + 'T00:00:00');
+            if (isNaN(d.getTime())) return '';
+            return ARABIC_DAY_NAMES[d.getDay()];
+        }
+
+        let selectedDate = getTodayDateStr();
+
+        // ==================== الجدول الأساسي الثابت (لا يتغير إلا من لوحة الإدارة) ====================
+        let originalTasks = [
+            // ==================== سكرتارية الشيفت الصباحي ====================
+            { id: 1, role: "F", section: SEC_START, title: "مراجعه مهام اليوم والايام السابقه غير المنجزه", branch: "الهرم", status: false },
+            { id: 2, role: "F", section: SEC_START, title: "مراجعه شيت الغيابات", branch: "الهرم", status: false },
+            { id: 3, role: "F", section: SEC_START, title: "مراجعة واتس اب و واتساب بوت", branch: "الهرم", status: false },
+            { id: 4, role: "F", section: SEC_START, title: "مراجعة المكالمات الفائته على جميع الموبايلات", branch: "الهرم", status: false },
+            { id: 5, role: "F", section: SEC_DURING, title: "تأكيد المواعيد غير المؤكده لليوم للعيادتين", branch: "الهرم", status: false },
+            { id: 6, role: "F", section: SEC_DURING, title: "تسكين المواعيد غير المسكنه لليوم من قائمة الانتظار و ال follow up", branch: "الهرم", status: false },
+            { id: 7, role: "F", section: SEC_DURING, title: "مراجعة شيت التثبيتات للمرضي ال تثبيتهم انتهي اليوم للعيادتين", branch: "الهرم", status: false },
+            { id: 8, role: "F", section: SEC_DURING, title: "حجز المواعيد غير المحجوزه للمرضي بجدول اليوم و تكرارها", branch: "الهرم", status: false },
+            { id: 9, role: "F", section: SEC_DURING, title: "تأكيد المواعيد لليوم التالي للعيادتين", branch: "الهرم", status: false },
+            { id: 10, role: "F", section: SEC_DURING, title: "تسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي بالعيادتين", branch: "الهرم", status: false },
+            { id: 11, role: "F", section: SEC_DURING, title: "متابعة الوصول للمرضي حتي الساعه ٣ م", branch: "الهرم", status: false },
+            { id: 12, role: "F", section: SEC_DURING, title: "متابعة واتس اب و واتس اب بوت حتي الساعه ٣ م", branch: "الهرم", status: false },
+            { id: 13, role: "F", section: SEC_DURING, title: "متابعة موبايل ٠١٠ و ٠١١ حتي الساعه ٣ م", branch: "الهرم", status: false },
+            { id: 14, role: "F", section: SEC_END, title: "مراجعة المهام", branch: "الهرم", status: false },
+            { id: 15, role: "F", section: SEC_END, title: "مراجعة شيت الغيابات", branch: "الهرم", status: false },
+
+            // ==================== سكرتارية عيادة 2 ====================
+            { id: 16, role: "J", section: SEC_START, title: "مراجعه مهام اليوم والايام السابقه غير المنجزه", branch: "الهرم", status: false },
+            { id: 17, role: "J", section: SEC_START, title: "مراجعه شيت الغيابات", branch: "الهرم", status: false },
+            { id: 18, role: "J", section: SEC_START, title: "مراجعة واتساب بوت", branch: "الهرم", status: false },
+            { id: 19, role: "J", section: SEC_START, title: "مراجعة المكالمات الفائته علي موبايل ٠١١", branch: "الهرم", status: false },
+            { id: 20, role: "J", section: SEC_DURING, title: "تأكيد المواعيد لليوم التالي الخاصه ب عياده ٢", branch: "الهرم", status: false },
+            { id: 21, role: "J", section: SEC_DURING, title: "tسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي الخاصه ب عياده ٢", branch: "الهرم", status: false },
+            { id: 22, role: "J", section: SEC_DURING, title: "متابعة الوصول للمرضي في عياده ٢", branch: "الهرم", status: false },
+            { id: 23, role: "J", section: SEC_DURING, title: "متابعة واتس اب يوت", branch: "الهرم", status: false },
+            { id: 24, role: "J", section: SEC_DURING, title: "متابعة موبايل ٠١١", branch: "الهرم", status: false },
+            { id: 25, role: "J", section: SEC_END, title: "مراجعة المهام", branch: "الهرم", status: false },
+            { id: 26, role: "J", section: SEC_END, title: "مراجعة شيت الغيابات", branch: "الهرم", status: false },
+
+            // ==================== سكرتارية عيادة واحد ====================
+            { id: 27, role: "H", section: SEC_START, title: "مراجعه مهام اليوم والايام السابقه غير المنجزه", branch: "الهرم", status: false },
+            { id: 28, role: "H", section: SEC_START, title: "مراجعه شيت الغيابات", branch: "الهرم", status: false },
+            { id: 29, role: "H", section: SEC_START, title: "مراجعة واتس اب", branch: "الهرم", status: false },
+            { id: 30, role: "H", section: SEC_START, title: "مراجعة المكالمات الفائته علي موبايل ٠١٠", branch: "الهرم", status: false },
+            { id: 31, role: "H", section: SEC_DURING, title: "تأكيد المواعيد لليوم التالي الخاص بعياده واحد", branch: "الهرم", status: false },
+            { id: 32, role: "H", section: SEC_DURING, title: "tسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي الخاصه ب عياده ١", branch: "الهرم", status: false },
+            { id: 33, role: "H", section: SEC_DURING, title: "mتابعة الوصول للمرضي في عياده ١", branch: "الهرم", status: false },
+            { id: 34, role: "H", section: SEC_DURING, title: "متابعة واتس اب", branch: "الهرم", status: false },
+            { id: 35, role: "H", section: SEC_DURING, title: "متابعة موبايل 010", branch: "الهرم", status: false },
+            { id: 36, role: "H", section: SEC_END, title: "مراجعة المهام", branch: "الهرم", status: false },
+            { id: 37, role: "H", section: SEC_END, title: "مراجعة شيت الغيابات", branch: "الهرم", status: false },
+
+            // ==================== مشرف السكرتارية ====================
+            { id: 38, role: "L", section: SEC_START, title: "مراجعه مهام اليوم والايام السابقه غير المنجزه", branch: "الكل", status: false },
+            { id: 39, role: "L", section: SEC_START, title: "مراجعه شيت الغيابات", branch: "الكل", status: false },
+            { id: 40, role: "L", section: SEC_DURING, title: "الاشراف على جميع المهام", branch: "الكل", status: false },
+            { id: 41, role: "L", section: SEC_DURING, title: "مهام المخزن", branch: "الكل", status: false },
+            { id: 42, role: "L", section: SEC_DURING, title: "مهام التحصيل", branch: "الكل", status: false },
+            { id: 43, role: "L", section: SEC_END, title: "مراجعة المهام", branch: "الكل", status: false },
+            { id: 44, role: "L", section: SEC_END, title: "مراجعة شيت الغيابات", branch: "الكل", status: false },
+            { id: 45, role: "L", section: SEC_END, title: "مراجعة مواعيد من (لم يتم الحضور) و من قام ب (الالغاء) و (الاسترداد) و اتخاذ اجراءات بخصوصه في حالة التكرار (في الشيت و في المواعيد المكرره)", branch: "الكل", status: false },
+            { id: 46, role: "L", section: SEC_END, title: "حجز اعادات التقييم و تسجيل حالة تجديد مرضي اعادات التقييم", branch: "الكل", status: false },
+            { id: 47, role: "L", section: SEC_END, title: "مراجعة جدول اليوم التالي (مواعيد الدكاتره و مواعيد البارتشنات)", branch: "الكل", status: false },
+            { id: 48, role: "L", section: SEC_END, title: "مراجعة اي اتصالات فائته علي موبايل 010 - 011", branch: "الكل", status: false },
+            { id: 49, role: "L", section: SEC_END, title: "مراجعه حاله التثبيت لكل الكشوفات الجديده", branch: "الكل", status: false },
+            { id: 50, role: "L", section: SEC_END, title: "mراجعه علامات المرضى لكل الكشوفات الجديده", branch: "الكل", status: false },
+            { id: 51, role: "L", section: SEC_END, title: "مراجعة اي رسائل فائته علي واتس اب او واتس اب بوت", branch: "الكل", status: false },
+            { id: 52, role: "L", section: SEC_END, title: "تقفيل الحسابات", branch: "الكل", status: false },
+
+            // ==================== سكرتارية الدقي ====================
+            { id: 53, role: "DOKKI_STAFF", section: SEC_START, title: "مراجعه مهام اليوم والايام السابقه غير المنجزه", branch: "الدقي", status: false },
+            { id: 54, role: "DOKKI_STAFF", section: SEC_START, title: "مراجعه شيت الغيابات", branch: "الدقي", status: false },
+            { id: 55, role: "DOKKI_STAFF", section: SEC_START, title: "مراجعة واتس اب و واتساب بوت", branch: "الدقي", status: false },
+            { id: 56, role: "DOKKI_STAFF", section: SEC_START, title: "مراجعة المكالمات الفائته", branch: "الدقي", status: false },
+            { id: 57, role: "DOKKI_STAFF", section: SEC_DURING, title: "تأكيد المواعيد غير المؤكده لليوم", branch: "الدقي", status: false },
+            { id: 58, role: "DOKKI_STAFF", section: SEC_DURING, title: "تسكين المواعيد غير المسكنه لليوم من قائمة الانتظار و ال follow up", branch: "الدقي", status: false },
+            { id: 59, role: "DOKKI_STAFF", section: SEC_DURING, title: "مراجعة شيت التثبيتات للمرضي ال تثبيتهم انتهي اليوم", branch: "الدقي", status: false },
+            { id: 60, role: "DOKKI_STAFF", section: SEC_DURING, title: "حجز المواعيد غير المحجوزه للمرضي بجدول اليوم و تكرارها", branch: "الدقي", status: false },
+            { id: 61, role: "DOKKI_STAFF", section: SEC_DURING, title: "تأكيد المواعيد لليوم التالي", branch: "الدقي", status: false },
+            { id: 62, role: "DOKKI_STAFF", section: SEC_DURING, title: "تسكين المواعيد غير المسكنه للغد من قائمة الانتظار و ال follow up لليوم التالي", branch: "الدقي", status: false },
+            { id: 63, role: "DOKKI_STAFF", section: SEC_DURING, title: "متابعة الوصول للمرضي", branch: "الدقي", status: false },
+            { id: 64, role: "DOKKI_STAFF", section: SEC_DURING, title: "متابعة واتس اب", branch: "الدقي", status: false },
+            { id: 65, role: "DOKKI_STAFF", section: SEC_DURING, title: "متابعة موبايل", branch: "الدقي", status: false },
+            { id: 66, role: "DOKKI_STAFF", section: SEC_DURING, title: "مهام المخزن", branch: "الدقي", status: false },
+            { id: 67, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة المهام", branch: "الدقي", status: false },
+            { id: 68, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة شيت الغيابات", branch: "الدقي", status: false },
+            { id: 69, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة مواعيد من (لم يتم الحضور) و من قام ب (الالغاء) و (الاسترداد) و اتخاذ اجراءات بخصوصه في حالة التكرار (في الشيت و في المواعيد المكرره)", branch: "الدقي", status: false },
+            { id: 70, role: "DOKKI_STAFF", section: SEC_END, title: "حجز اعادات التقييم و تسجيل حالة تجديد مرضي اعادات التقييم", branch: "الدقي", status: false },
+            { id: 71, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة جدول اليوم التالي (مواعيد الدكاتره و مواعيد البارتشنات)", branch: "الدقي", status: false },
+            { id: 72, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة اي اتصالات فائته علي موبايل 010 - 011", branch: "الدقي", status: false },
+            { id: 73, role: "DOKKI_STAFF", section: SEC_END, title: "mراجه حاله التثبيت لكل الكشوفات الجديده", branch: "الدقي", status: false },
+            { id: 74, role: "DOKKI_STAFF", section: SEC_END, title: "mراجه علامات المرضى لكل الكشوفات الجديده", branch: "الدقي", status: false },
+            { id: 75, role: "DOKKI_STAFF", section: SEC_END, title: "مراجعة اي رسائل فائته علي واتس اب او واتس اب بوت", branch: "الدقي", status: false },
+            { id: 76, role: "DOKKI_STAFF", section: SEC_END, title: "تقفيل الحسابات", branch: "الدقي", status: false }
+        ];
+
+        // ==================== جداول كل تاريخ (نسخة مستقلة قابلة للتعديل لكل يوم/تاريخ) ====================
+        let dailySchedules = {};
+
+        function cloneFromOriginal() {
+            return {
+                tasks: originalTasks.map(t => ({ ...t, manualOwner: null })),
+                names: {},
+                absences: { F: false, H: false, J: false }
+            };
+        }
+
+        // يضمن أن جدول التاريخ متزامن مع الجدول الأساسي (إضافة/حذف/تحديث نص المهام)
+        // بدون المساس بحالة الإنجاز أو النقل اليدوي أو أسماء السكرتارية أو الغيابات الخاصة بهذا التاريخ
+        function syncDaySchedule(dateStr) {
+            const daySchedule = dailySchedules[dateStr];
+            if (!daySchedule.names) daySchedule.names = {};
+            if (!daySchedule.absences) daySchedule.absences = { F: false, H: false, J: false };
+            const schedule = daySchedule.tasks;
+            const masterIds = new Set(originalTasks.map(t => t.id));
+
+            for (let i = schedule.length - 1; i >= 0; i--) {
+                if (!masterIds.has(schedule[i].id)) schedule.splice(i, 1);
+            }
+
+            originalTasks.forEach(master => {
+                let dayTask = schedule.find(t => t.id === master.id);
+                if (!dayTask) {
+                    schedule.push({ ...master, manualOwner: null });
+                } else {
+                    dayTask.title = master.title;
+                    dayTask.role = master.role;
+                    dayTask.section = master.section;
+                    dayTask.branch = master.branch;
+                }
+            });
+        }
+
+        function loadDaySchedule(dateStr) {
+            if (dailySchedules[dateStr]) {
+                syncDaySchedule(dateStr);
+                return dailySchedules[dateStr];
+            }
+            let saved = null;
+            try { saved = localStorage.getItem('bodyfix_schedule_' + dateStr); } catch (e) {}
+
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    // دعم التوافق مع الإصدار القديم الذي كان يحفظ مصفوفة مهام فقط
+                    if (Array.isArray(parsed)) {
+                        dailySchedules[dateStr] = { tasks: parsed, names: {}, absences: { F: false, H: false, J: false } };
+                    } else {
+                        dailySchedules[dateStr] = { tasks: parsed.tasks || [], names: parsed.names || {}, absences: parsed.absences || { F: false, H: false, J: false } };
+                    }
+                } catch (e) {
+                    dailySchedules[dateStr] = cloneFromOriginal();
+                }
+            } else {
+                dailySchedules[dateStr] = cloneFromOriginal();
+            }
+            syncDaySchedule(dateStr);
+            return dailySchedules[dateStr];
+        }
+
+        function saveDaySchedule(dateStr) {
+            if (USE_FIREBASE) {
+                db.ref('schedules/' + dateStr).set(dailySchedules[dateStr]).catch(() => {});
+            }
+            try { localStorage.setItem('bodyfix_schedule_' + dateStr, JSON.stringify(dailySchedules[dateStr])); } catch (e) {}
+            if (USE_JSONBIN) pushToJsonBin(dateStr);
+        }
+
+        function syncAllLoadedSchedules() {
+            Object.keys(dailySchedules).forEach(dateStr => {
+                syncDaySchedule(dateStr);
+                saveDaySchedule(dateStr);
+            });
+        }
+
+        // ==================== سجل العمليات اليومي ====================
+        let dailyLogs = {};
+
+        function loadLocalLog(dateStr) {
+            if (dailyLogs[dateStr]) return;
+            try {
+                const saved = localStorage.getItem('bodyfix_log_' + dateStr);
+                dailyLogs[dateStr] = saved ? JSON.parse(saved) : [];
+            } catch (e) { dailyLogs[dateStr] = []; }
+        }
+
+        function addLogEntry(dateStr, text) {
+            const now = new Date();
+            const time = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+            const entry = { time, text };
+
+            if (USE_FIREBASE) {
+                db.ref('logs/' + dateStr).push(entry).catch(() => {});
+            }
+
+            loadLocalLog(dateStr);
+            dailyLogs[dateStr].push(entry);
+            if (dailyLogs[dateStr].length > 200) dailyLogs[dateStr] = dailyLogs[dateStr].slice(-200);
+            try { localStorage.setItem('bodyfix_log_' + dateStr, JSON.stringify(dailyLogs[dateStr])); } catch (e) {}
+
+            if (USE_JSONBIN) pushToJsonBin(dateStr);
+
+            if (dateStr === selectedDate) renderActivityLog();
+        }
+
+        function renderActivityLog() {
+            const container = document.getElementById('activityLog');
+            if (!container) return;
+            loadLocalLog(selectedDate);
+            const logs = (dailyLogs[selectedDate] || []).slice().reverse();
+            if (!logs.length) {
+                container.innerHTML = `<div class="empty-column">لا توجد عمليات مسجلة لهذا اليوم حتى الآن.</div>`;
+                return;
+            }
+            container.innerHTML = logs.map(l => `<div class="log-entry"><span class="log-time">${escapeHtml(l.time)}</span>${escapeHtml(l.text)}</div>`).join('');
+        }
+
+        function getOwnerDisplay(role, daySchedule) {
+            const name = daySchedule && daySchedule.names ? daySchedule.names[role] : '';
+            return (name && name.trim()) ? name.trim() : (roleLabels[role] || role);
+        }
+
+        // ==================== ربط Firebase اللحظي بالتاريخ المختار ====================
+        let currentScheduleListener = null;
+        let currentLogListener = null;
+
+        function detachListeners() {
+            if (currentScheduleListener) {
+                currentScheduleListener.ref.off('value', currentScheduleListener.cb);
+                currentScheduleListener = null;
+            }
+            if (currentLogListener) {
+                currentLogListener.ref.off('value', currentLogListener.cb);
+                currentLogListener = null;
+            }
+        }
+
+        function attachDateListener(dateStr) {
+            detachListeners();
+
+            if (USE_FIREBASE) {
+                const ref = db.ref('schedules/' + dateStr);
+                const cb = snapshot => {
+                    const val = snapshot.val();
+                    if (val) {
+                        dailySchedules[dateStr] = {
+                            tasks: val.tasks || [],
+                            names: val.names || {},
+                            absences: val.absences || { F: false, H: false, J: false }
+                        };
+                    } else if (!dailySchedules[dateStr]) {
+                        dailySchedules[dateStr] = cloneFromOriginal();
+                    }
+                    syncDaySchedule(dateStr);
+                    if (dateStr === selectedDate) {
+                        applyAbsencesToCheckboxes(dateStr);
+                        renderDashboard();
+                    }
+                };
+                ref.on('value', cb);
+                currentScheduleListener = { ref, cb };
+
+                const logRef = db.ref('logs/' + dateStr).limitToLast(100);
+                const logCb = snapshot => {
+                    const arr = [];
+                    snapshot.forEach(child => arr.push(child.val()));
+                    dailyLogs[dateStr] = arr;
+                    if (dateStr === selectedDate) renderActivityLog();
+                };
+                logRef.on('value', logCb);
+                currentLogListener = { ref: logRef, cb: logCb };
+                return;
+            }
+
+            // الوضع المحلي / JSONBin: نحمّل النسخة المحلية فورًا للعرض السريع
+            loadDaySchedule(dateStr);
+            loadLocalLog(dateStr);
+            applyAbsencesToCheckboxes(dateStr);
+            renderDashboard();
+            renderActivityLog();
+
+            if (USE_JSONBIN) {
+                syncFromJsonBin(dateStr);
+                startJsonBinPolling();
+            }
+        }
+
+        function applyAbsencesToCheckboxes(dateStr) {
+            const daySchedule = dailySchedules[dateStr] || cloneFromOriginal();
+            const abs = daySchedule.absences || { F: false, H: false, J: false };
+            document.getElementById('absentF').checked = !!abs.F;
+            document.getElementById('absentH').checked = !!abs.H;
+            document.getElementById('absentJ').checked = !!abs.J;
+        }
+
+        function onAbsenceChange() {
+            const daySchedule = loadDaySchedule(selectedDate);
+            daySchedule.absences = {
+                F: document.getElementById('absentF').checked,
+                H: document.getElementById('absentH').checked,
+                J: document.getElementById('absentJ').checked
+            };
+            saveDaySchedule(selectedDate);
+            renderDashboard();
+        }
+
+        function initDateSelector() {
+            const input = document.getElementById('dateSelector');
+            input.value = selectedDate;
+            updateDayNameLabel();
+
+            // تهيئة تقرير الأداء بفترة افتراضية (آخر 7 أيام)
+            const reportTo = getTodayDateStr();
+            const fromD = new Date();
+            fromD.setDate(fromD.getDate() - 6);
+            const reportFrom = formatDate(fromD);
+            document.getElementById('reportFrom').value = reportFrom;
+            document.getElementById('reportTo').value = reportTo;
+        }
+
+        function updateDayNameLabel() {
+            const label = document.getElementById('dayNameLabel');
+            const dayName = getDayNameFromDate(selectedDate);
+            const isToday = selectedDate === getTodayDateStr();
+            label.innerText = isToday ? `${dayName} (اليوم)` : dayName;
+        }
+
+        function changeDate(dateStr) {
+            if (!dateStr) return;
+            selectedDate = dateStr;
+            updateDayNameLabel();
+            attachDateListener(selectedDate);
+        }
+
+        function resetDaySchedule() {
+            const dayName = getDayNameFromDate(selectedDate);
+            if (!confirm(`هل أنت متأكد من إعادة جدول يوم ${dayName} (${selectedDate}) إلى الجدول الأساسي الافتراضي؟\nسيتم فقد كل عمليات النقل اليدوي وحالة الإنجاز والغيابات وأسماء السكرتارية الخاصة بهذا التاريخ فقط، ولن يتأثر أي يوم آخر.`)) return;
+            dailySchedules[selectedDate] = cloneFromOriginal();
+            saveDaySchedule(selectedDate);
+            applyAbsencesToCheckboxes(selectedDate);
+            addLogEntry(selectedDate, `🔄 تمت إعادة جدول هذا اليوم بالكامل إلى الجدول الأساسي.`);
+            renderDashboard();
+        }
+
+        function updateColumnName(role, name) {
+            const daySchedule = loadDaySchedule(selectedDate);
+            const oldName = daySchedule.names[role] || '';
+            daySchedule.names[role] = name;
+            saveDaySchedule(selectedDate);
+            const newName = name.trim();
+            if (newName !== oldName.trim()) {
+                if (newName) {
+                    addLogEntry(selectedDate, `✏️ تم تسجيل اسم "${newName}" كمسؤول/ة عن عمود "${roleLabels[role] || role}".`);
+                } else {
+                    addLogEntry(selectedDate, `✏️ تم حذف الاسم المسجل لعمود "${roleLabels[role] || role}".`);
+                }
+            }
+        }
+
+        function handleAdminAuth() {
+            if (isAdminAuthenticated) {
+                isAdminAuthenticated = false;
+                document.getElementById('adminToggleBtn').innerText = "🔓 فتح لوحة التحكم الإدارية";
+                document.getElementById('adminToggleBtn').className = "btn btn-warning";
+                document.getElementById('adminFormPanel').style.display = "none";
+                document.getElementById('adminStatusText').innerHTML = `<span style="color: #f43f5e; font-size: 18px;">🔒</span> <span style="color: #94a3b8;">وضع الموظف (عرض وتنفيذ الحالات فقط)</span>`;
+                renderDashboard();
+            } else {
+                let inputPass = prompt("برجاء إدخال كلمة المرور الإدارية الخاصة بـ عيادات BodyFix:");
+                if (inputPass === "BodyFix2026") {
+                    isAdminAuthenticated = true;
+                    document.getElementById('adminToggleBtn').innerText = "🔒 قفل لوحة الإدارة";
+                    document.getElementById('adminToggleBtn').className = "btn btn-danger";
+                    document.getElementById('adminFormPanel').style.display = "flex";
+                    document.getElementById('adminStatusText').innerHTML = `<span style="color: #34d399; font-size: 18px;">🔓</span> <span style="color: #34d399; font-weight: bold;">وضع المسؤول نشط (يمكنك التعديل والإضافة الآن)</span>`;
+                    renderDashboard();
+                } else if (inputPass !== null) {
+                    alert("⚠️ خطأ في كلمة المرور! ليس لديك صلاحيات إدارية.");
+                }
+            }
+        }
+
+        function addNewTask() {
+            if (!isAdminAuthenticated) return;
+            const titleInput = document.getElementById('newTaskTitle');
+            const titleVal = titleInput.value.trim();
+            const roleVal = document.getElementById('newTaskRole').value;
+            const sectionSelect = document.getElementById('newTaskSection').value;
+            const branchVal = document.getElementById('newTaskBranch').value;
+
+            if (!titleVal) {
+                alert("برجاء كتابة نص بيان المهمة أولاً قبل الحفظ!");
+                return;
+            }
+
+            let mappedSection = SEC_DURING;
+            if (sectionSelect === "START") mappedSection = SEC_START;
+            else if (sectionSelect === "END") mappedSection = SEC_END;
+
+            taskIdCounter++;
+            originalTasks.push({
+                id: taskIdCounter,
+                role: roleVal,
+                section: mappedSection,
+                title: titleVal,
+                branch: branchVal,
+                status: false
+            });
+
+            syncAllLoadedSchedules();
+            titleInput.value = '';
+            alert("🎯 تم حفظ المهمة الجديدة وإدراجها في جدول كل أيام الأسبوع بنجاح!");
+            renderDashboard();
+        }
+
+        function toggleStatus(id) {
+            const daySchedule = loadDaySchedule(selectedDate);
+            const task = daySchedule.tasks.find(t => t.id === id);
+            if (task) {
+                task.status = !task.status;
+                saveDaySchedule(selectedDate);
+                const owner = task.manualOwner || getTransferInfo(task).owner;
+                const ownerDisplay = getOwnerDisplay(owner, daySchedule);
+                const actionText = task.status ? '✅ تم تنفيذ' : '↩️ تم الرجوع عن تنفيذ';
+                addLogEntry(selectedDate, `${actionText} مهمة "${task.title}" (${ownerDisplay})`);
+            }
+            renderDashboard();
+        }
+
+        function updateTaskTitle(id, newTitle) {
+            if (!isAdminAuthenticated) return;
+            const master = originalTasks.find(t => t.id === id);
+            if (master) master.title = newTitle;
+            syncAllLoadedSchedules();
+            renderDashboard();
+        }
+
+        // 🗑️ حذف المهمة نهائياً من الجدول الأساسي ومن جميع أيام الأسبوع
+        function deleteTask(id) {
+            if (!isAdminAuthenticated) return;
+            if (confirm("⚠️ هل أنت متأكد من رغبتك في حذف هذه المهمة نهائياً من المنظومة (لكل أيام الأسبوع)؟")) {
+                originalTasks = originalTasks.filter(t => t.id !== id);
+                syncAllLoadedSchedules();
+                renderDashboard();
+            }
+        }
+
+        function autoResizeTextarea(el) {
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
+        }
+
+        function getTaskBaseKey(title) {
+            let clean = title.replace(/[^\u0600-\u06FFa-zA-Z0-9\s]/g, '').trim();
+            let words = clean.split(/\s+/);
+            return words.slice(0, 2).join(" ");
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        // ==================== موعد نهاية الشيفت وتنبيه المهام المتأخرة ====================
+        function initShiftEndInput() {
+            const input = document.getElementById('shiftEndTime');
+            let saved = '15:00';
+            try { saved = localStorage.getItem('bodyfix_shift_end') || saved; } catch (e) {}
+            input.value = saved;
+        }
+
+        function saveShiftEndTime() {
+            try { localStorage.setItem('bodyfix_shift_end', document.getElementById('shiftEndTime').value); } catch (e) {}
+            renderDashboard();
+        }
+
+        function isPastShiftEnd() {
+            if (selectedDate !== getTodayDateStr()) return false;
+            const shiftEnd = document.getElementById('shiftEndTime').value;
+            if (!shiftEnd) return false;
+            const now = new Date();
+            const nowStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+            return nowStr >= shiftEnd;
+        }
+
+        // يحدد المالك "الأساسي" للمهمة بناءً على بيانات الغياب المُمررة
+        function getTransferInfoForAbsences(task, abs) {
+            const totalAbsents = [abs.F, abs.H, abs.J].filter(Boolean).length;
+
+            let owner = task.role;
+            let isTransferred = false;
+            let transferType = '';
+
+            if (task.branch === "الهرم") {
+                if (totalAbsents === 3) {
+                    if (task.role === 'F' || task.role === 'H' || task.role === 'J') {
+                        owner = 'L'; isTransferred = true; transferType = 'TO_L_3';
+                    }
+                } else if (totalAbsents === 2) {
+                    if (task.role === 'H' || task.role === 'J') {
+                        owner = 'L'; isTransferred = true; transferType = 'TO_L';
+                    }
+                } else if (totalAbsents === 1) {
+                    if (task.role === 'J') {
+                        owner = 'H'; isTransferred = true; transferType = 'TO_H';
+                    }
+                }
+            }
+            return { owner, isTransferred, transferType };
+        }
+
+        // يحدد المالك "الأساسي" للمهمة بناءً على منطق الغياب الحالي (من خانات الاختيار المعروضة)
+        function getTransferInfo(task) {
+            const abs = {
+                F: document.getElementById('absentF').checked,
+                H: document.getElementById('absentH').checked,
+                J: document.getElementById('absentJ').checked
+            };
+            return getTransferInfoForAbsences(task, abs);
+        }
+
+        // يجهز قائمة المهام المعالجة (بعد تطبيق الغياب والنقل اليدوي والفلاتر والدمج) لتاريخ معين
+        function getProcessedTasks(daySchedule, branchFilter, roleFilter) {
+            const abs = daySchedule.absences || { F: false, H: false, J: false };
+            let seenTasks = {};
+            let processedTasks = [];
+
+            daySchedule.tasks.forEach(task => {
+                const transferInfo = getTransferInfoForAbsences(task, abs);
+                const effectiveOwner = task.manualOwner || transferInfo.owner;
+
+                const matchBranch = (branchFilter === 'ALL') || (task.branch === 'الكل') || (task.branch === branchFilter);
+                const matchRole = (roleFilter === 'ALL') || (effectiveOwner === roleFilter);
+
+                if (!matchBranch || !matchRole) return;
+
+                let uniqueKey = `${effectiveOwner}_${task.section}_${task.title.trim()}`;
+
+                if (!seenTasks[uniqueKey]) {
+                    seenTasks[uniqueKey] = true;
+                    processedTasks.push({
+                        ...task,
+                        effectiveOwner,
+                        isTransferred: transferInfo.isTransferred && !task.manualOwner,
+                        transferType: transferInfo.transferType,
+                        baseKey: getTaskBaseKey(task.title)
+                    });
+                } else {
+                    if (task.status) {
+                        const mainTask = processedTasks.find(t => `${t.effectiveOwner}_${t.section}_${t.title.trim()}` === uniqueKey);
+                        if (mainTask) mainTask.status = true;
+                    }
+                }
+            });
+
+            const sectionOrder = [SEC_START, SEC_DURING, SEC_END];
+            processedTasks.sort((a, b) => {
+                let secDiff = sectionOrder.indexOf(a.section) - sectionOrder.indexOf(b.section);
+                if (secDiff !== 0) return secDiff;
+                return a.baseKey.localeCompare(b.baseKey, 'ar');
+            });
+
+            return processedTasks;
+        }
+
+        // ==================== السحب والإفلات (Drag & Drop) ====================
+        function onDragStart(ev, taskId) {
+            ev.dataTransfer.effectAllowed = 'move';
+            ev.dataTransfer.setData('text/plain', String(taskId));
+            const card = ev.currentTarget.closest('.task-card');
+            if (card) card.classList.add('dragging');
+        }
+
+        function onDragEnd(ev) {
+            const card = ev.currentTarget.closest('.task-card');
+            if (card) card.classList.remove('dragging');
+            document.querySelectorAll('.column-body.drag-over').forEach(el => el.classList.remove('drag-over'));
+        }
+
+        function onColumnDragOver(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('drag-over');
+        }
+
+        function onColumnDragLeave(ev) {
+            ev.currentTarget.classList.remove('drag-over');
+        }
+
+        function onColumnDrop(ev, targetRole) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('drag-over');
+            const taskId = parseInt(ev.dataTransfer.getData('text/plain'), 10);
+            if (!isNaN(taskId)) handleTaskDrop(taskId, targetRole);
+        }
+
+        function handleTaskDrop(taskId, targetRole) {
+            const daySchedule = loadDaySchedule(selectedDate);
+            const task = daySchedule.tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            const currentOwner = task.manualOwner || getTransferInfo(task).owner;
+            if (currentOwner === targetRole) return; // لم يتغير المالك
+
+            const sourceLabel = roleLabels[currentOwner] || currentOwner;
+            const targetLabel = roleLabels[targetRole] || targetRole;
+            const dayName = getDayNameFromDate(selectedDate);
+
+            const ok = confirm(
+                `هل تريد نقل هذه المهمة؟\n\n"${task.title}"\n\nمن: ${sourceLabel}\nإلى: ${targetLabel}\n\n(هذا التغيير سيُطبّق على يوم ${dayName} (${selectedDate}) فقط، ولن يؤثر على الجدول الأساسي أو على أي يوم آخر)`
+            );
+
+            if (ok) {
+                task.manualOwner = (targetRole === task.role) ? null : targetRole;
+                saveDaySchedule(selectedDate);
+                addLogEntry(selectedDate, `🔄 تم نقل مهمة "${task.title}" من ${getOwnerDisplay(currentOwner, daySchedule)} إلى ${getOwnerDisplay(targetRole, daySchedule)}`);
+                renderDashboard();
+            }
+        }
+
+        function undoManualMove(taskId) {
+            const daySchedule = loadDaySchedule(selectedDate);
+            const task = daySchedule.tasks.find(t => t.id === taskId);
+            if (!task) return;
+            const previousOwner = task.manualOwner;
+            task.manualOwner = null;
+            saveDaySchedule(selectedDate);
+            addLogEntry(selectedDate, `↩️ تم إرجاع مهمة "${task.title}" من ${getOwnerDisplay(previousOwner, daySchedule)} إلى ${getOwnerDisplay(task.role, daySchedule)}`);
+            renderDashboard();
+        }
+
+        // ==================== رسم بطاقة مهمة واحدة ====================
+        function renderCard(task) {
+            const disabledAttr = isAdminAuthenticated ? "" : "disabled";
+            const adminClass = isAdminAuthenticated ? "admin-active" : "";
+
+            let extraBadge = '';
+            if (task.manualOwner) {
+                extraBadge = `<span class="badge badge-manual">🖱️ نقل يدوي من ${roleLabels[task.role] || task.role}</span>`;
+            } else if (task.isTransferred) {
+                if (task.transferType === 'TO_H') {
+                    extraBadge = `<span class="badge badge-transfer">🔄 دمج: عيادة 1 يشيل شغل عيادة 2</span>`;
+                } else if (task.transferType === 'TO_L') {
+                    extraBadge = `<span class="badge badge-danger-transfer">⚠️ طوارئ: المشرف يستلم</span>`;
+                } else if (task.transferType === 'TO_L_3') {
+                    extraBadge = `<span class="badge badge-danger-transfer">🚨 طوارئ [3 غياب]: للمشرف</span>`;
+                }
+            }
+
+            const undoBtn = task.manualOwner
+                ? `<button class="btn btn-slate btn-small" onclick="undoManualMove(${task.id})" title="إرجاع المهمة لصاحبها الأصلي لهذا اليوم">↩️ رجوع</button>`
+                : '';
+
+            const deleteBtn = isAdminAuthenticated
+                ? `<button class="btn btn-danger btn-small" onclick="deleteTask(${task.id})" title="حذف من كل الأيام">🗑️</button>`
+                : '';
+
+            const overdueClass = (!task.status && isPastShiftEnd()) ? ' overdue' : '';
+
+            return `
+                <div class="task-card ${SECTION_CLASS[task.section]}${overdueClass}">
+                    <div class="task-card-top">
+                        <span class="task-card-section">${SECTION_ICON[task.section]} ${task.section}</span>
+                        <span class="drag-handle" draggable="true" ondragstart="onDragStart(event, ${task.id})" ondragend="onDragEnd(event)" title="اسحب لنقل المهمة لموظف آخر">⠿ اسحب للنقل</span>
+                    </div>
+                    <textarea class="editable-task-area ${adminClass}" ${disabledAttr} draggable="false" rows="1" oninput="autoResizeTextarea(this)" onchange="updateTaskTitle(${task.id}, this.value)">${task.title}</textarea>
+                    <div class="task-card-badges">
+                        <span class="badge badge-branch">${task.branch}</span>
+                        ${extraBadge}
+                    </div>
+                    <div class="task-card-footer">
+                        <button class="btn ${task.status ? 'btn-success' : 'btn-slate'}" onclick="toggleStatus(${task.id})">
+                            ${task.status ? '✓ مكتملة' : '❌ متبقي'}
+                        </button>
+                        <div style="display:flex; gap:4px;">${undoBtn}${deleteBtn}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==================== رسم اللوحة بالكامل ====================
+        function renderDashboard() {
+            const daySchedule = loadDaySchedule(selectedDate);
+
+            const branchFilter = document.getElementById('branchFilter').value;
+            const roleFilter = document.getElementById('roleFilter').value;
+
+            const processedTasks = getProcessedTasks(daySchedule, branchFilter, roleFilter);
+
+            // -------- KPIs --------
+            let totalTasks = processedTasks.length;
+            let completedTasks = 0;
+            let pendingTasks = 0;
+            let sectionMetrics = { [SEC_START]: { t: 0, c: 0 }, [SEC_DURING]: { t: 0, c: 0 }, [SEC_END]: { t: 0, c: 0 } };
+
+            processedTasks.forEach(task => {
+                if (task.status) completedTasks++;
+                else pendingTasks++;
+                sectionMetrics[task.section].t++;
+                if (task.status) sectionMetrics[task.section].c++;
+            });
+
+            document.getElementById('overallKPI').innerText = totalTasks === 0 ? '0%' : Math.round((completedTasks / totalTasks) * 100) + '%';
+            document.getElementById('pendingKPI').innerText = pendingTasks;
+            document.getElementById('startKPI').innerText = sectionMetrics[SEC_START].t === 0 ? '0%' : Math.round((sectionMetrics[SEC_START].c / sectionMetrics[SEC_START].t) * 100) + '%';
+            document.getElementById('duringKPI').innerText = sectionMetrics[SEC_DURING].t === 0 ? '0%' : Math.round((sectionMetrics[SEC_DURING].c / sectionMetrics[SEC_DURING].t) * 100) + '%';
+            document.getElementById('endKPI').innerText = sectionMetrics[SEC_END].t === 0 ? '0%' : Math.round((sectionMetrics[SEC_END].c / sectionMetrics[SEC_END].t) * 100) + '%';
+
+            // -------- بانر تنبيه نهاية الشيفت --------
+            const banner = document.getElementById('shiftBanner');
+            if (isPastShiftEnd() && pendingTasks > 0) {
+                const shiftEnd = document.getElementById('shiftEndTime').value;
+                banner.style.display = 'block';
+                banner.innerText = `⏰ تنبيه: تم تجاوز موعد نهاية الشيفت (${shiftEnd}) ولا يزال هناك ${pendingTasks} مهمة لم تُنجز بعد.`;
+            } else {
+                banner.style.display = 'none';
+            }
+
+            // -------- تحديد الأعمدة (الموظفين) المعروضة --------
+            let columnsToShow;
+            if (roleFilter !== 'ALL') {
+                columnsToShow = [roleFilter];
+            } else if (branchFilter === 'الدقي') {
+                columnsToShow = ['DOKKI_STAFF', 'L'];
+            } else if (branchFilter === 'الهرم') {
+                columnsToShow = ['F', 'H', 'J', 'L'];
+            } else {
+                columnsToShow = COLUMN_ORDER;
+            }
+
+            const board = document.getElementById('dashboardBoard');
+            let html = '';
+
+            columnsToShow.forEach(role => {
+                const tasks = processedTasks.filter(t => t.effectiveOwner === role);
+                const completed = tasks.filter(t => t.status).length;
+                const secretaryName = escapeHtml(daySchedule.names[role] || '');
+
+                html += `
+                    <div class="column">
+                        <div class="column-header">
+                            <div class="col-title">${roleLabels[role] || role}</div>
+                            <div class="column-count">${completed} / ${tasks.length} مكتملة</div>
+                            <input type="text" class="col-name-input" placeholder="اسم السكرتارية لهذا اليوم..." value="${secretaryName}" onchange="updateColumnName('${role}', this.value)">
+                        </div>
+                        <div class="column-body" ondragover="onColumnDragOver(event)" ondragleave="onColumnDragLeave(event)" ondrop="onColumnDrop(event, '${role}')">
+                            ${tasks.length ? tasks.map(t => renderCard(t)).join('') : '<div class="empty-column">لا توجد مهام هنا حالياً<br>يمكنك إفلات مهمة هنا لنقلها لهذا الموظف</div>'}
+                        </div>
+                    </div>
+                `;
+            });
+
+            board.innerHTML = html || `<div class="empty-column" style="padding: 40px; width: 100%;">لا توجد أي مهام مطابقة للفلاتر الحالية.</div>`;
+
+            document.querySelectorAll('.editable-task-area').forEach(el => {
+                autoResizeTextarea(el);
+            });
+        }
+
+        // ==================== تصدير جدول اليوم إلى Excel ====================
+        function exportToExcel() {
+            if (typeof XLSX === 'undefined') {
+                alert('⚠️ تعذر تحميل مكتبة Excel. تأكد من اتصال الجهاز بالإنترنت وحاول مرة أخرى.');
+                return;
+            }
+
+            const daySchedule = loadDaySchedule(selectedDate);
+            const branchFilter = document.getElementById('branchFilter').value;
+            const roleFilter = document.getElementById('roleFilter').value;
+            const processedTasks = getProcessedTasks(daySchedule, branchFilter, roleFilter);
+
+            const rows = processedTasks.map(t => ({
+                'التاريخ': selectedDate,
+                'اليوم': getDayNameFromDate(selectedDate),
+                'القسم الزمني': t.section,
+                'المهمة': t.title,
+                'الفرع': t.branch,
+                'الموظف المسؤول': roleLabels[t.effectiveOwner] || t.effectiveOwner,
+                'اسم السكرتارية': daySchedule.names[t.effectiveOwner] || '',
+                'الحالة': t.status ? 'مكتملة' : 'متبقية'
+            }));
+
+            if (!rows.length) {
+                alert('لا توجد مهام مطابقة للفلاتر الحالية لتصديرها.');
+                return;
+            }
+
+            const ws = XLSX.utils.json_to_sheet(rows);
+            ws['!cols'] = [{ wch: 12 }, { wch: 10 }, { wch: 16 }, { wch: 55 }, { wch: 10 }, { wch: 26 }, { wch: 20 }, { wch: 10 }];
+
+            const wb = XLSX.utils.book_new();
+            wb.Workbook = { Views: [{ RTL: true }] };
+            XLSX.utils.book_append_sheet(wb, ws, 'جدول اليوم');
+            XLSX.writeFile(wb, `BodyFix_${selectedDate}.xlsx`);
+        }
+
+        // ==================== تقرير الأداء حسب اسم السكرتارية ====================
+        async function getScheduleForDate(dateStr) {
+            if (dailySchedules[dateStr]) return dailySchedules[dateStr];
+
+            if (USE_FIREBASE) {
+                try {
+                    const snap = await db.ref('schedules/' + dateStr).once('value');
+                    const val = snap.val();
+                    if (val) {
+                        return { tasks: val.tasks || [], names: val.names || {}, absences: val.absences || { F: false, H: false, J: false } };
+                    }
+                } catch (e) {}
+            }
+
+            if (USE_JSONBIN) {
+                try {
+                    const index = await loadBinIndex();
+                    const binId = index[dateStr];
+                    if (binId) {
+                        const remote = await jsonbinGet(binId);
+                        return { tasks: remote.tasks || [], names: remote.names || {}, absences: remote.absences || { F: false, H: false, J: false } };
+                    }
+                } catch (e) {}
+            }
+
+            try {
+                const saved = localStorage.getItem('bodyfix_schedule_' + dateStr);
+                if (!saved) return null;
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed)) return { tasks: parsed, names: {}, absences: { F: false, H: false, J: false } };
+                return { tasks: parsed.tasks || [], names: parsed.names || {}, absences: parsed.absences || { F: false, H: false, J: false } };
+            } catch (e) {
+                return null;
+            }
+        }
+
+        async function generateReport() {
+            const from = document.getElementById('reportFrom').value;
+            const to = document.getElementById('reportTo').value;
+            const resultDiv = document.getElementById('reportResult');
+
+            if (!from || !to) { alert('من فضلك اختر تاريخ البداية وتاريخ النهاية.'); return; }
+            if (from > to) { alert('تاريخ البداية يجب أن يكون قبل تاريخ النهاية (أو يساويه).'); return; }
+
+            resultDiv.innerHTML = '<div class="empty-column">⏳ جاري تجميع البيانات من الأيام المحفوظة...</div>';
+
+            const dates = enumerateDates(from, to);
+            const stats = {}; // name -> { total, completed, days:Set }
+
+            for (const dateStr of dates) {
+                const daySchedule = await getScheduleForDate(dateStr);
+                if (!daySchedule) continue;
+
+                const processed = getProcessedTasks(daySchedule, 'ALL', 'ALL');
+                processed.forEach(t => {
+                    const rawName = (daySchedule.names && daySchedule.names[t.effectiveOwner]) ? daySchedule.names[t.effectiveOwner].trim() : '';
+                    const name = rawName || `${roleLabels[t.effectiveOwner] || t.effectiveOwner} (بدون اسم مسجل)`;
+
+                    if (!stats[name]) stats[name] = { total: 0, completed: 0, days: new Set() };
+                    stats[name].total++;
+                    if (t.status) stats[name].completed++;
+                    stats[name].days.add(dateStr);
+                });
+            }
+
+            const names = Object.keys(stats);
+            if (!names.length) {
+                resultDiv.innerHTML = '<div class="empty-column">لا توجد بيانات محفوظة في الفترة المحددة.</div>';
+                return;
+            }
+
+            names.sort((a, b) => {
+                const pa = stats[a].total ? stats[a].completed / stats[a].total : 0;
+                const pb = stats[b].total ? stats[b].completed / stats[b].total : 0;
+                return pb - pa;
+            });
+
+            let html = `<div class="table-container"><table>
+                <thead><tr>
+                    <th>اسم السكرتارية</th>
+                    <th>عدد الأيام المسجلة</th>
+                    <th>إجمالي المهام</th>
+                    <th>المهام المكتملة</th>
+                    <th>نسبة الإنجاز</th>
+                </tr></thead><tbody>`;
+
+            names.forEach(name => {
+                const s = stats[name];
+                const pct = s.total ? Math.round((s.completed / s.total) * 100) : 0;
+                html += `<tr>
+                    <td>${escapeHtml(name)}</td>
+                    <td>${s.days.size}</td>
+                    <td>${s.total}</td>
+                    <td>${s.completed}</td>
+                    <td>${pct}%</td>
+                </tr>`;
+            });
+
+            html += `</tbody></table></div>`;
+            resultDiv.innerHTML = html;
+        }
+
+        window.onload = function() {
+            updateConnectionStatus();
+            initDateSelector();
+            initShiftEndInput();
+            attachDateListener(selectedDate);
+        };
+    </script>
+</body>
+</html>
